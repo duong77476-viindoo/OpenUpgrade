@@ -6,8 +6,5 @@ maintenance  / maintenance.request      / description (text)            : type i
 # DONE: pre-migration, converted to html
 
 ---XML records in module 'maintenance'---
-DEL ir.model.constraint: maintenance.constraint_maintenance_equipment_serial_no
-# NOTHING TO DO: constraint is not removed
-
 DEL ir.ui.view: maintenance.assets_backend
 # NOTHING TO DO
