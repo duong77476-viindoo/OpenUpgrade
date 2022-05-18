@@ -4,5 +4,4 @@ maintenance  / maintenance.equipment    / note (text)                   : type i
 maintenance  / maintenance.equipment.category / note (text)                   : type is now 'html' ('text')
 maintenance  / maintenance.request      / description (text)            : type is now 'html' ('text')
 ---XML records in module 'maintenance'---
-DEL ir.model.constraint: maintenance.constraint_maintenance_equipment_serial_no
 DEL ir.ui.view: maintenance.assets_backend
