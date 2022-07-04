@@ -19,6 +19,7 @@ renamed_modules = {
     "to_slugify_l10n_vn": "viin_unicode_slugify",
     "to_res_state_group": "viin_base_state_group",
     "to_l10n_vn_hr_payroll": "l10n_vn_viin_hr_payroll",
+    "to_l10n_vn_picking_operation": "l10n_vn_viin_picking_operation",
     # Viindoo/erponline-enterprise
     "to_enterprise_marks_account": "viin_hide_ent_modules_account",
     "viin_mobile_notification_firebase": "viin_mobile_firebase",
@@ -32,6 +33,8 @@ renamed_modules = {
     "viin_enterprise_marks_sale": "viin_hide_ent_modules_sale",
     "viin_enterprise_marks_purchase": "viin_hide_ent_modules_purchase",
     "viin_enterprise_marks_website": "viin_hide_ent_modules_websitewebsite",
+    "to_l10n_vn_account_asset": "l10n_vn_viin_account_asset",
+    "to_l10n_vn_account_asset_sale": "l10n_vn_viin_account_asset_sale",
 }
 
 # Merged modules contain a mapping from old module names to other,
@@ -57,6 +60,11 @@ merged_modules = {
     "viin_crm_employee_size": "viin_crm_business_nature",
     "to_hr_public_employee_birthday_filters": "viin_hr_employee_birthday",
     "to_equipment_image": "viin_maintenance",
+    "l10n_vn_c133": "l10n_vn_viin",
+    "l10n_vn_c200": "l10n_vn_viin",
+    "l10n_vn_common": "l10n_vn_viin",
+    "to_account_financial_income": "viin_account",
+    "to_account_income_deduct": "viin_account",
     # Viindoo/odoo-tvtma
     "to_tvtma_crm": "viin_crm",
     "to_tvtma_sales": "viin_sale",
