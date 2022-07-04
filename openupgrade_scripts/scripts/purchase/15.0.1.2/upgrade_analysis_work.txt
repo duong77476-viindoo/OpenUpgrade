@@ -4,7 +4,7 @@ purchase     / product.packaging        / purchase (boolean)            : NEW ha
 # NOTHING TO DO: new feature
 
 purchase     / purchase.order           / notes (text)                  : type is now 'html' ('text')
-# NOTHING TO DO
+# DONE: pre-migration, converted to html
 
 purchase     / purchase.order.line      / product_packaging_id (many2one): NEW relation: product.packaging
 purchase     / purchase.order.line      / product_packaging_qty (float) : NEW
