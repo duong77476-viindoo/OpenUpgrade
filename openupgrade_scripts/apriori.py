@@ -20,6 +20,7 @@ renamed_modules = {
     "to_res_state_group": "viin_base_state_group",
     "to_l10n_vn_hr_payroll": "l10n_vn_viin_hr_payroll",
     "to_l10n_vn_picking_operation": "l10n_vn_viin_picking_operation",
+    "to_l10n_vn_account_balance_carry_forward": "l10n_vn_viin_account_balance_carry_forward",
     # Viindoo/erponline-enterprise
     "to_enterprise_marks_account": "viin_hide_ent_modules_account",
     "viin_mobile_notification_firebase": "viin_mobile_firebase",
