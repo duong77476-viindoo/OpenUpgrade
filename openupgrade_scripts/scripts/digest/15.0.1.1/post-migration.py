@@ -3,11 +3,11 @@ from openupgradelib import openupgrade
 
 @openupgrade.migrate()
 def migrate(env, version):
-    openupgrade.load_data(env.cr, "hr_expense", "15.0.2.0/noupdate_changes.xml")
+    openupgrade.load_data(env.cr, "digest", "15.0.1.1/noupdate_changes.xml")
     openupgrade.delete_record_translations(
         env.cr,
-        "hr_expense",
+        "digest",
         [
-            "hr_expense_template_register",
+            "digest_mail_main",
         ],
     )

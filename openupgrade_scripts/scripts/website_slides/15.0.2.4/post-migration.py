@@ -12,5 +12,6 @@ def migrate(env, version):
             "mail_template_slide_channel_invite",
             "slide_template_published",
             "slide_template_shared",
+            "mail_notification_channel_invite",
         ],
     )

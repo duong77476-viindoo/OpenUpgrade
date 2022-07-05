@@ -9,5 +9,6 @@ def migrate(env, version):
         "portal",
         [
             "mail_template_data_portal_welcome",
+            "portal_share_template",
         ],
     )

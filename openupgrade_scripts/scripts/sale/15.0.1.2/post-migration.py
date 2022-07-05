@@ -10,5 +10,6 @@ def migrate(env, version):
         [
             "email_template_edi_sale",
             "mail_template_sale_confirmation",
+            "mail_notification_paynow_online",
         ],
     )
