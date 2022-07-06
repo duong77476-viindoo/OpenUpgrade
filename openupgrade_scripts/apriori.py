@@ -23,6 +23,8 @@ renamed_modules = {
     "to_l10n_vn_account_balance_carry_forward": "l10n_vn_viin_account_balance_carry_forward",
     "l10n_vn_edi": "l10n_vn_viin_edi",
     "viin_l10n_vn_accounting_sinvoice": "l10n_vn_viin_accounting_sinvoice",
+    "to_l10n_vn_hr_payroll_account": "l10n_vn_viin_hr_payroll_account",
+    "to_l10n_vn_hr_payroll_meal_account": "l10n_vn_viin_hr_payroll_meal_account",
     # Viindoo/erponline-enterprise
     "to_enterprise_marks_account": "viin_hide_ent_modules_account",
     "viin_mobile_notification_firebase": "viin_mobile_firebase",
