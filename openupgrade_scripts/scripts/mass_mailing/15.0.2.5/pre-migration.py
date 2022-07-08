@@ -2,20 +2,21 @@ from openupgradelib import openupgrade
 
 
 def _rename_fields(env):
-    openupgrade.rename_columns(
-        env.cr,
-        {
-            "mailing_mailing": [
-                ("contact_ab_pc", "ab_testing_pc"),
-                ("unique_ab_testing", "ab_testing_enabled"),
-            ],
-            "mailing_trace": [
-                ("sent", "sent_datetime"),
-                ("opened", "open_datetime"),
-                ("replied", "reply_datetime"),
-                ("clicked", "links_click_datetime"),
-            ],
-        },
+    openupgrade.rename_fields(
+        env,
+        [
+            ("mailing.mailing", "mailing_mailing", "contact_ab_pc", "ab_testing_pc"),
+            (
+                "mailing.mailing",
+                "mailing_mailing",
+                "unique_ab_testing",
+                "ab_testing_enabled",
+            ),
+            ("mailing.trace", "mailing_trace", "sent", "sent_datetime"),
+            ("mailing.trace", "mailing_trace", "opened", "open_datetime"),
+            ("mailing.trace", "mailing_trace", "replied", "reply_datetime"),
+            ("mailing.trace", "mailing_trace", "clicked", "links_click_datetime"),
+        ],
     )
 
 

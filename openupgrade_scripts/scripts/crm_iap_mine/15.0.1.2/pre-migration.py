@@ -106,11 +106,14 @@ _xmlid_renames = [
 @openupgrade.migrate()
 def migrate(env, version):
     openupgrade.rename_xmlids(env.cr, _xmlid_renames)
-    openupgrade.rename_columns(
-        env.cr,
-        {
-            "crm_iap_lead_industry": [
-                ("reveal_id", "reveal_ids"),
-            ],
-        },
+    openupgrade.rename_fields(
+        env,
+        [
+            (
+                "crm.iap.lead.industry",
+                "crm_iap_lead_industry",
+                "reveal_id",
+                "reveal_ids",
+            ),
+        ],
     )

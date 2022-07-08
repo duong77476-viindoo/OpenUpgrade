@@ -6,7 +6,7 @@ crm_iap_lead / crm.iap.lead.industry    / _order                        : _order
 crm_iap_lead / crm.iap.lead.industry    / reveal_id (char)              : DEL required
 crm_iap_lead / crm.iap.lead.mining.request / error (text)                  : DEL
 crm_iap_mine / crm.iap.lead.industry    / reveal_ids (char)             : NEW required
- # DONE: pre-migration: renamed column 'reveal_id' to 'reveal_ids'
+ # DONE: pre-migration: renamed field 'reveal_id' to 'reveal_ids'
 
 crm_iap_mine / crm.iap.lead.industry    / sequence (integer)            : NEW
 crm_iap_mine / crm.iap.lead.mining.request / error_type (selection)        : NEW selection_keys: ['credits', 'no_result']

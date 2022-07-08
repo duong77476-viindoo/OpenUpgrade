@@ -66,7 +66,7 @@ account      / account.move             / tax_cash_basis_created_move_ids (one2m
 
 account      / account.move             / tax_cash_basis_move_id (many2one): DEL relation: account.move
 account      / account.move             / tax_cash_basis_origin_move_id (many2one): NEW relation: account.move
-# DONE: pre-migration: rename column tax_cash_basis_move_id -> tax_cash_basis_origin_move_id
+# DONE: pre-migration: rename field tax_cash_basis_move_id -> tax_cash_basis_origin_move_id
 
 account      / account.move.line        / group_tax_id (many2one)       : NEW relation: account.tax
 account      / account.move.line        / tax_exigible (boolean)        : DEL

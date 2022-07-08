@@ -404,13 +404,16 @@ def migrate(env, version):
     openupgrade.set_xml_ids_noupdate_value(
         env, "account", ["action_account_resequence"], True
     )
-    openupgrade.rename_columns(
-        env.cr,
-        {
-            "account_move": [
-                ("tax_cash_basis_move_id", "tax_cash_basis_origin_move_id"),
-            ],
-        },
+    openupgrade.rename_fields(
+        env,
+        [
+            (
+                "account.move",
+                "account_move",
+                "tax_cash_basis_move_id",
+                "tax_cash_basis_origin_move_id",
+            ),
+        ],
     )
     _convert_field_to_html(env)
     _fast_fill_account_move_always_tax_exigible(env)
