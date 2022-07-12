@@ -73,10 +73,26 @@ def _delete_mail_channel_partner_duplicate_records(env):
     )
 
 
+def _add_follwers_from_mail_channel(env):
+    # As mail_channel field is removed from mail.follower in v15
+    # so we need to add followers which present in that channel
+    openupgrade.logged_query(
+        env.cr,
+        """
+        INSERT INTO mail_followers (res_model, res_id, partner_id)
+        SELECT mf.res_model, mf.res_id, mcp.partner_id from mail_followers mf
+        join mail_channel mc on mf.channel_id = mc.id
+        join mail_channel_partner mcp on mcp.channel_id = mc.id
+        ON CONFLICT (res_model, res_id, partner_id) DO NOTHING
+        """,
+    )
+
+
 @openupgrade.migrate()
 def migrate(env, version):
     _delete_mail_channel_partner_duplicate_records(env)
     _copy_columns(env)
     _rename_fields(env)
     _rename_tables(env)
+    _add_follwers_from_mail_channel(env)
     _delete_channel_follower_records(env)
