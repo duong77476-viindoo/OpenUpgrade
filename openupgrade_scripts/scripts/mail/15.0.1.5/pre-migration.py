@@ -83,6 +83,8 @@ def _add_follwers_from_mail_channel(env):
         SELECT mf.res_model, mf.res_id, mcp.partner_id from mail_followers mf
         join mail_channel mc on mf.channel_id = mc.id
         join mail_channel_partner mcp on mcp.channel_id = mc.id
+        join res_users ru on ru.partner_id = mcp.partner_id
+        WHERE ru.active = TRUE
         ON CONFLICT (res_model, res_id, partner_id) DO NOTHING
         """,
     )
