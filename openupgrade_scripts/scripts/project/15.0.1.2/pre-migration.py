@@ -77,3 +77,6 @@ def migrate(env, version):
         """,
     )
     _rename_field_on_filters(env.cr, "project.task", "user_id", "user_ids")
+    _rename_field_on_filters(
+        env.cr, "project.task", "assign_employee_id", "assign_employee_ids"
+    )
