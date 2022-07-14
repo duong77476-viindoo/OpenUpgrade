@@ -7,7 +7,7 @@ def _rename_field_on_filters(cr, model, old_field, new_field):
     cr.execute(
         """
         UPDATE ir_filters
-        SET domain = regexp_replace(domain, %(old_pattern)s, %(new_pattern)s)
+        SET domain = regexp_replace(domain, %(old_pattern)s, %(new_pattern)s , 'g')
         WHERE model_id = %%s
             AND domain ~ %(old_pattern)s
         """
@@ -26,7 +26,7 @@ def _rename_field_on_filters(cr, model, old_field, new_field):
         r"""
         UPDATE ir_filters
         SET context = regexp_replace(
-            context, %(old_pattern)s, %(new_pattern)s
+            context, %(old_pattern)s, %(new_pattern)s, 'g'
         )
         WHERE model_id = %%s
             AND context ~ %(old_pattern)s
@@ -49,7 +49,7 @@ def _rename_field_on_filters(cr, model, old_field, new_field):
         r"""
         UPDATE ir_filters
         SET context = regexp_replace(
-            context, %(old_pattern)s, %(new_pattern)s
+            context, %(old_pattern)s, %(new_pattern)s, 'g'
         )
         WHERE model_id = %%s
             AND context ~ %(old_pattern)s
