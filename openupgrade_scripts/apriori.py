@@ -59,6 +59,10 @@ merged_modules = {
     # OCA/purchase-workflow
     "product_form_purchase_link": "purchase",
     # Viindoo/tvtmaaddons
+    "to_project_access": "viin_project",
+    "to_project_stages": "viin_project",
+    "viin_project_kanban_state_notification": "viin_project",
+    "viin_project_update": "viin_project",
     "viin_website_image_optimization_disable": "viin_webp",
     # Viindoo/enterprise
     # Viindoo/odoo-tvtma
