@@ -511,96 +511,64 @@ def _account_analytic_distribution_model_generate(env):
     )
 
 
-def _dynamic_fast_fill_analytic_distribution_when_inherit_analytic_mixin(
-    env, table_name
-):
+def _aml_fast_fill_analytic_distribution(env):
     """
-    Dynamically fill analytic_distribution for model that inherit from analytic.mixin
-    Hmmm this method should be placed in the library
-    Take a look with example of account.move.line
-    The idea is to take all the distribution of an account.move.line
-    which has analytic.tag then form it as a jsonb like {'1': 100, '2': 50}
-    and also check if the table has analytic_account_column then check if it
-    exist in the analytic_account of all the analytic_distribution of the analytic tags
-    then take it as the 100%, which mean an account.move.line both specify '2' as the
-    analytic.account.id and it has 1 analytic.tag also have that analytic.account then
-    the value will sum together
+    take all the move lines, if have an analytic accounting account, it's 100%
+    combined with the analytic distribution of account analytic tag
+    then sum them together by analytic account
     """
-    if not openupgrade.column_exists(env.cr, table_name, "analytic_distribution"):
+    if not openupgrade.column_exists(
+        env.cr, "account_move_line", "analytic_distribution"
+    ):
         openupgrade.logged_query(
             env.cr,
-            f"""
-            ALTER TABLE {table_name}
+            """
+            ALTER TABLE account_move_line
             ADD COLUMN IF NOT EXISTS analytic_distribution jsonb;
             """,
         )
-    is_having_analytic_account_id_col = openupgrade.column_exists(
-        env.cr, table_name, "analytic_account_id"
-    )
-    # Build query
-    select_query = f"""
-        SELECT
-        {table_name}.id,
-        unnest(array_agg(tmp.tag_id)) AS tag,
-        unnest(array_agg(tmp.account_id)) AS analytic_account_of_tag,
-        unnest(array_agg(tmp.percentage)) AS percentage
-    """
-    groupby_query = f"""
-        GROUP BY
-            {table_name}.id
-    """
-    if is_having_analytic_account_id_col:
-        select_query += f"""
-            , {table_name}.analytic_account_id AS account_analytic_account
-        """
-        groupby_query += f"""
-            , {table_name}.analytic_account_id
-        """
     openupgrade.logged_query(
         env.cr,
-        f"""
-        WITH sub AS (
-            WITH tmp AS (
+        """
+        WITH distribution_data AS (
+            WITH sub AS (
                 SELECT
-                    id,
-                    account_id,
-                    percentage,
-                    tag_id
-                FROM
-                account_analytic_distribution
+                    all_line_data.move_line_id,
+                    all_line_data.analytic_account_id,
+                    SUM(all_line_data.percentage) AS percentage
+                FROM (
+                    SELECT
+                        move_line.id AS move_line_id,
+                        account.id AS analytic_account_id,
+                        100 AS percentage
+                    FROM account_move_line move_line
+                    JOIN account_analytic_account account
+                        ON account.id = move_line.analytic_account_id
+                    WHERE move_line.analytic_account_id IS NOT NULL
+
+                    UNION ALL
+
+                    SELECT
+                        move_line.id AS move_line_id,
+                        dist.account_id AS analytic_account_id,
+                        dist.percentage AS percentage
+                    FROM account_move_line move_line
+                    JOIN account_analytic_tag_account_move_line_rel tag_rel
+                        ON tag_rel.account_move_line_id = move_line.id
+                    JOIN account_analytic_distribution dist
+                        ON dist.tag_id = tag_rel.account_analytic_tag_id
+                ) AS all_line_data
+                GROUP BY all_line_data.move_line_id, all_line_data.analytic_account_id
             )
-            {select_query}
-            FROM
-                {table_name}
-                JOIN account_analytic_tag_{table_name}_rel rel
-                    ON {table_name}.id = rel.{table_name}_id
-                JOIN account_analytic_tag aat
-                    ON aat.id = rel.account_analytic_tag_id
-                JOIN tmp
-                    ON tmp.tag_id = aat.id
-            {groupby_query}
-        )
-        UPDATE {table_name}
-        SET analytic_distribution = analytic_distribution_sub.analytic_distribution
-        FROM (
-            SELECT
-                id,
-                jsonb_object_agg(analytic_account_of_tag::text, total_percentage)
+            SELECT sub.move_line_id,
+            jsonb_object_agg(sub.analytic_account_id::text, sub.percentage)
                 AS analytic_distribution
-            FROM (
-                SELECT
-                    sub.id,
-                    analytic_account_of_tag,
-                    sum(percentage) AS total_percentage
-                FROM
-                    sub
-                GROUP BY
-                    sub.id,
-                    analytic_account_of_tag
-            ) AS aggregated_data
-            GROUP BY id
-        ) AS analytic_distribution_sub
-        WHERE {table_name}.id = analytic_distribution_sub.id
+            FROM sub
+            GROUP BY sub.move_line_id
+        )
+        UPDATE account_move_line move_line
+        SET analytic_distribution = dist.analytic_distribution
+        FROM distribution_data dist WHERE move_line.id = dist.move_line_id
         """,
     )
 
@@ -623,6 +591,4 @@ def migrate(env, version):
     _account_move_auto_post_boolean_to_selection(env)
     _account_payment_fast_fill_amount_company_currency_signed(env)
     _account_analytic_distribution_model_generate(env)
-    _dynamic_fast_fill_analytic_distribution_when_inherit_analytic_mixin(
-        env, "account_move_line"
-    )
+    _aml_fast_fill_analytic_distribution(env)
