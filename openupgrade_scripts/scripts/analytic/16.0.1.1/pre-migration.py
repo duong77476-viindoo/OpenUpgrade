@@ -56,6 +56,18 @@ def analytic_account_set_group_id_if_null(env):
         WHERE aaa.group_id IS NULL;
         """,
     )
+    # Manually update parent_path for dummy plan that we have created
+    # or else we will get error when accessing it
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_analytic_group
+        SET parent_path = id || '/'
+        WHERE name = 'Dummy Analytic Plan' AND
+        default_applicability = 'unavailable' AND
+        parent_path IS NULL
+        """,
+    )
 
 
 def create_root_plan_and_prefill_value_for_analytic_plan(env):
