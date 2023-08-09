@@ -2,6 +2,10 @@ from openupgradelib import openupgrade
 
 
 def _move_gift_cart_to_loyalty_card(env):
+    if not openupgrade.table_exists(env.cr, "gift_card"):
+        # Need to make sure gift_card module
+        # has been installed in v15
+        return
     openupgrade.logged_query(
         env.cr,
         """
