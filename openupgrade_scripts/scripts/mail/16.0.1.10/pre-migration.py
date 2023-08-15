@@ -97,6 +97,17 @@ def _to_mail_notif_and_email_create_mail_notification_index(env):
         [("name", "=", "to_mail_notif_and_email"), ("state", "=", "to upgrade")]
     )
     if module_to_mail_notif_and_email:
+        openupgrade.logged_query(
+            env.cr,
+            """
+            DELETE FROM mail_notification mn1
+                  USING mail_notification mn2
+            WHERE mn1.id > mn2.id
+            AND mn1.mail_message_id = mn2.mail_message_id
+            AND mn1.res_partner_id = mn2.res_partner_id
+            AND mn1.notification_type = mn2.notification_type;
+            """,
+        )
         env.cr.execute(
             """
             CREATE UNIQUE INDEX IF NOT EXISTS unique_mail_message_id_res_partner_id_if_set
