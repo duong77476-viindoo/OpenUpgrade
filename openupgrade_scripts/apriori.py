@@ -108,6 +108,8 @@ merged_modules = {
     "viin_saas_reseller_portal": "viin_saas_reseller",
     "viin_viindoo_membership_white_label": "viin_viindoo_saas_reseller",
     "viin_website_product_add_to_cart_snippet": "website_sale",
+    # Viindoo/branding
+    "viin_brand_website_blog": "website_blog",
 }
 
 # only used here for upgrade_analysis
