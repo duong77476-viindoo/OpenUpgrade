@@ -84,15 +84,16 @@ def boostrap_5_migration(env):
     # Find views to convert
     env.cr.execute(
         """
-        SELECT iuv.id FROM ir_ui_view iuv JOIN website w on w.id = iuv.website_id
-        WHERE iuv.type = 'qweb' AND iuv.website_id IS NOT NULL
+        SELECT iuv.id FROM ir_ui_view iuv
+        WHERE iuv.type = 'qweb'
     """
     )
     view_ids = list(chain.from_iterable(env.cr.fetchall()))
     all_view_need_bs5_migration = env["ir.ui.view"].browse(view_ids)
     for view in all_view_need_bs5_migration:
         new_arch = convert_string_bootstrap_4to5(view.arch_db)
-        view.arch_db = new_arch
+        if new_arch != view.arch_db:
+            view.arch_db = new_arch
 
 
 @openupgrade.migrate()
