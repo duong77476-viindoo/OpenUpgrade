@@ -40,3 +40,36 @@ def unlink(self):
 
 unlink._original_method = BaseModel.unlink
 BaseModel.unlink = unlink
+
+
+def _load_records(self, data_list, update=False):
+    for vals in data_list:
+        xml_id = vals.get("xml_id", False)
+        original_record = self.env.ref(xml_id, raise_if_not_found=False)
+        arch_db = (vals.get("values") or {}).get("arch", False)
+        if (
+            xml_id
+            and arch_db
+            and original_record
+            and hasattr(original_record, "_name")
+            and original_record._name == "ir.ui.view"
+            and "website_id" in original_record._fields
+        ):
+            related_records = self.env["ir.ui.view"].search(
+                [
+                    ("id", "!=", original_record.id),
+                    ("key", "=", original_record.key),
+                    ("type", "=", "qweb"),
+                    ("website_id", "!=", False),
+                    ("arch_db", "=", original_record.arch_db),
+                    ("inherit_id", "!=", False),
+                ]
+            )
+            for rec in related_records:
+                if not rec.model_data_id and not rec.xml_id:
+                    rec.arch_db = arch_db
+    return BaseModel._load_records._original_method(self, data_list, update)
+
+
+_load_records._original_method = BaseModel._load_records
+BaseModel._load_records = _load_records
