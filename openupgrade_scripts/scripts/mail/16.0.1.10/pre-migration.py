@@ -117,8 +117,27 @@ def _to_mail_notif_and_email_create_mail_notification_index(env):
         )
 
 
+def _update_mail_channel_name(env):
+    openupgrade.logged_query(
+        env.cr,
+        """
+        WITH sub AS(
+            SELECT res_id, value FROM _ir_translation
+            WHERE name = 'mail.channel,name'
+            AND value IS NOT NULL
+            AND src != value
+        )
+        UPDATE mail_channel mc
+        SET name = sub.value
+        FROM sub
+        WHERE mc.id = sub.res_id
+        """,
+    )
+
+
 @openupgrade.migrate()
 def migrate(env, version):
+    _update_mail_channel_name(env)
     delete_obsolete_constraints(env)
     openupgrade.rename_fields(env, _fields_renames)
     openupgrade.rename_models(env.cr, _models_renames)
