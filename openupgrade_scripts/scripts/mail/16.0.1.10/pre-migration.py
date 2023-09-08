@@ -124,7 +124,7 @@ def _update_mail_channel_name(env):
         WITH sub AS(
             SELECT res_id, value FROM _ir_translation
             WHERE name = 'mail.channel,name'
-            AND value IS NOT NULL
+            AND value IS NOT NULL AND value != ''
             AND src != value
         )
         UPDATE mail_channel mc
