@@ -175,8 +175,8 @@ def load_modules(registry, force_demo=False, status=None, update_module=False):
                 added_grps = list(set(new_data[0]["gids"]) - set(old_data["gids"]))
                 if added_grps:
                     msg_all += msg(str(old_data["uid"]), "", str(added_grps), "")
-            old_users = {[d["uid"] for d in old_groups]}
-            new_users = {[d["uid"] for d in new_groups]}
+            old_users = {d["uid"] for d in old_groups}
+            new_users = {d["uid"] for d in new_groups}
             for u in list(old_users - new_users):
                 msg_all += msg(str(u), "", "", "New user")
             _logger.warning("The following users have different:\n" "%s\n" % msg_all)
