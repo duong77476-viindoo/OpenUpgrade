@@ -17,6 +17,11 @@ def _convert_db_column(self, model, column):
         for query in itertools.chain.from_iterable(
             _get_translation_upgrade_queries(model._cr, self)
         ):
+            # We want to take the translation value instead
+            query = query.replace(
+                'ELSE t.value || m."%s" END' % self.name,
+                'ELSE m."%s" || t.value END' % self.name,
+            )
             openupgrade.logged_query(model._cr, query)
 
 
