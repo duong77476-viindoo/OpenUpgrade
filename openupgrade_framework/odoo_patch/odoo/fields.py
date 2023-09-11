@@ -22,6 +22,10 @@ def _convert_db_column(self, model, column):
                 'ELSE t.value || m."%s" END' % self.name,
                 'ELSE m."%s" || t.value END' % self.name,
             )
+            query = query.replace(
+                'AND it.state = "translated"',
+                "",
+            ).replace('AND state = "translated"', "")
             openupgrade.logged_query(model._cr, query)
 
 
