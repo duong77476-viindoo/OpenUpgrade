@@ -48,7 +48,9 @@ def load_modules(registry, force_demo=False, status=None, update_module=False):
             )
         # create a technical table
         # to track res.group per user before and after the migration
-        if not openupgrade.table_exists(cr, "openupgrade_track_user_group"):
+        if openupgrade.table_exists(
+            cr, "res_groups_users_rel"
+        ) and not openupgrade.table_exists(cr, "openupgrade_track_user_group"):
             cr.execute(
                 """
                 CREATE TABLE IF NOT EXISTS openupgrade_track_user_group (
@@ -129,66 +131,71 @@ def load_modules(registry, force_demo=False, status=None, update_module=False):
                 "The following tables have different number of rows:\n" "%s\n" % msg_all
             )
         # Report
-        cr.execute(
-            """
-            SELECT uid, array_agg(gid) as gids
-            FROM openupgrade_track_user_group
-            GROUP BY uid
-            """,
-        )
-        old_groups = cr.dictfetchall()
-        cr.execute(
-            """
-            SELECT uid, array_agg(gid) as gids
-            FROM res_groups_users_rel
-            GROUP BY uid
-            """,
-        )
-        new_groups = cr.dictfetchall()
-        if bool(old_groups) and bool(new_groups):
+        if openupgrade.table_exists(cr, "openupgrade_track_user_group"):
+            cr.execute(
+                """
+                SELECT uid, array_agg(gid) as gids
+                FROM openupgrade_track_user_group
+                GROUP BY uid
+                """,
+            )
+            old_groups = cr.dictfetchall()
+            cr.execute(
+                """
+                SELECT uid, array_agg(gid) as gids
+                FROM res_groups_users_rel
+                GROUP BY uid
+                """,
+            )
+            new_groups = cr.dictfetchall()
+            if bool(old_groups) and bool(new_groups):
 
-            def msg(col1, col2, col3, col4):
-                return "%s%s| %s%s| %s%s| %s%s\n" % (
-                    col1,
-                    " " * (20 - len(col1)),
-                    col2,
-                    " " * (30 - len(str(col2))),
-                    col3,
-                    " " * (30 - len(str(col3))),
-                    col4,
-                    " " * (30 - len(str(col4))),
-                )
+                def msg(col1, col2, col3, col4):
+                    return "%s%s| %s%s| %s%s| %s%s\n" % (
+                        col1,
+                        " " * (20 - len(col1)),
+                        col2,
+                        " " * (30 - len(str(col2))),
+                        col3,
+                        " " * (30 - len(str(col3))),
+                        col4,
+                        " " * (30 - len(str(col4))),
+                    )
 
-            msg_all = msg("Users", "Removed Groups", "Added Groups", "Notes")
-            for old_data in old_groups:
-                new_data = [d for d in new_groups if d["uid"] == old_data["uid"]]
-                if not new_data:
+                msg_all = msg("Users", "Removed Groups", "Added Groups", "Notes")
+                for old_data in old_groups:
+                    new_data = [d for d in new_groups if d["uid"] == old_data["uid"]]
+                    if not new_data:
+                        msg_all += msg(
+                            str(old_data["uid"]),
+                            "",
+                            "",
+                            "User has been deleted",
+                        )
+                        continue
+                    removed_grps = list(
+                        set(old_data["gids"]) - set(new_data[0]["gids"])
+                    )
+                    added_grps = list(set(new_data[0]["gids"]) - set(old_data["gids"]))
                     msg_all += msg(
                         str(old_data["uid"]),
+                        str(removed_grps),
+                        str(added_grps),
                         "",
-                        "",
-                        "User has been deleted",
                     )
-                    continue
-                removed_grps = list(set(old_data["gids"]) - set(new_data[0]["gids"]))
-                added_grps = list(set(new_data[0]["gids"]) - set(old_data["gids"]))
-                msg_all += msg(
-                    str(old_data["uid"]),
-                    str(removed_grps),
-                    str(added_grps),
-                    "",
+                old_users = {d["uid"] for d in old_groups}
+                new_users = {d["uid"] for d in new_groups}
+                for u in list(old_users - new_users):
+                    msg_all += msg(str(u), "", "", "New user")
+                _logger.warning(
+                    "The following users have different:\n" "%s\n" % msg_all
                 )
-            old_users = {d["uid"] for d in old_groups}
-            new_users = {d["uid"] for d in new_groups}
-            for u in list(old_users - new_users):
-                msg_all += msg(str(u), "", "", "New user")
-            _logger.warning("The following users have different:\n" "%s\n" % msg_all)
-        cr.execute(
-            """
-            DROP TABLE IF EXISTS openupgrade_track_row_count;
-            DROP TABLE IF EXISTS openupgrade_track_user_group;
-            """,
-        )
+            cr.execute(
+                """
+                DROP TABLE IF EXISTS openupgrade_track_row_count;
+                DROP TABLE IF EXISTS openupgrade_track_user_group;
+                """,
+            )
 
 
 load_modules._original_method = odoo.modules.load_modules
