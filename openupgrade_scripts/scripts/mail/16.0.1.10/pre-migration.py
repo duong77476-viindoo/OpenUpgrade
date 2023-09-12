@@ -135,6 +135,14 @@ def _update_mail_channel_name(env):
     )
 
 
+def _force_install_viin_mail_channel_privacy_module(env):
+    viin_mail_channel_privacy_module = env["ir.module.module"].search(
+        [("name", "=", "viin_mail_channel_privacy")]
+    )
+    if viin_mail_channel_privacy_module:
+        viin_mail_channel_privacy_module.button_install()
+
+
 @openupgrade.migrate()
 def migrate(env, version):
     _update_mail_channel_name(env)
@@ -151,3 +159,4 @@ def migrate(env, version):
     # This method is only exist in Viindoo/Openupgrade for some
     # Technical reason
     _to_mail_notif_and_email_create_mail_notification_index(env)
+    _force_install_viin_mail_channel_privacy_module(env)
