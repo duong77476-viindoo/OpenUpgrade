@@ -23,8 +23,8 @@ def _mail_channel_privacy(env):
         env.cr,
         """
         UPDATE mail_channel
-        SET group_public_id = NULL AND channel_type = 'channel'
-        WHERE public = 'public'
+        SET group_public_id = NULL
+        WHERE public = 'public' AND channel_type = 'channel'
         """,
     )
 
