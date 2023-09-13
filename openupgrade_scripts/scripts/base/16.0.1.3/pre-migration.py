@@ -13,6 +13,12 @@ from odoo.addons.openupgrade_scripts.apriori import merged_modules, renamed_modu
 _logger = logging.getLogger(__name__)
 
 
+# To change content of some field's value when a model's name has been changed
+_RENAMED_CHANGED_MODELS_NAME = [
+    ("rating_rating", "parent_res_model"),
+]
+
+
 def login_or_registration_required_at_checkout(cr):
     """The website_sale_require_login module is merged into website_sale. Check if the
     it was installed in v15 to set the website.account_on_checkout field as mandatory
@@ -93,3 +99,19 @@ def migrate(cr, version):
             """,
         )
     openupgrade.rename_tables(cr, [("ir_translation", "_ir_translation")])
+    # Rename field's content of a model's name which has been changed
+    # Ex: parent_res_model of rating_rating table store model's name
+    for table, column in _RENAMED_CHANGED_MODELS_NAME:
+        if not openupgrade.table_exists(cr, table) or not openupgrade.column_exists(
+            cr, table, column
+        ):
+            continue
+        for old_model, new_model in changed_models.items():
+            openupgrade.logged_query(
+                cr,
+                f"""
+                UPDATE {table}
+                    SET {column} = '{new_model}'
+                WHERE {column} = '{old_model}'
+                """,
+            )
