@@ -24,6 +24,7 @@ _RENAMED_CHANGED_MODELS_NAME = [
     ("mailing_trace", "model"),
     ("payment_link_wizard", "res_model"),
     ("portal_share", "res_model"),
+    ("rating_rating", "res_model"),
     ("rating_rating", "parent_res_model"),
     ("sms_composer", "res_model"),
     ("snailmail_letter", "model"),
