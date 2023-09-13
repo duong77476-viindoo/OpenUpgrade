@@ -15,7 +15,28 @@ _logger = logging.getLogger(__name__)
 
 # To change content of some field's value when a model's name has been changed
 _RENAMED_CHANGED_MODELS_NAME = [
+    # Odoo
+    ("calendar_event", "res_model"),
+    ("mail_activity", "res_model"),
+    ("mail_followers", "res_model"),
+    ("mail_compose_message", "model"),
+    ("mail_wizard_invite", "res_model"),
+    ("mailing_trace", "model"),
+    ("payment_link_wizard", "res_model"),
+    ("portal_share", "res_model"),
     ("rating_rating", "parent_res_model"),
+    ("sms_composer", "res_model"),
+    ("snailmail_letter", "model"),
+    ("ir_act_window", "res_model"),
+    ("ir_attachment", "res_model"),
+    ("ir_model_data", "model"),
+    # tvtmaaddons
+    ("user_assignment", "res_model"),
+    ("rotating_token", "model"),
+    # erponline-enterprise
+    ("website_seo_analyze_result", "res_model"),
+    # saas-infrastructure-common
+    ("progress_task", "model"),
 ]
 
 
