@@ -12,21 +12,23 @@ def _m2m_to_o2m_plan_activity_type_ids(env):
     between them then fill value for 'plan_id' at hr.plan.activity.type
     and after that ORM will do the rest for us
     """
-    openupgrade.logged_query(
-        env.cr,
+    env.cr.execute(
         """
-        WITH tmp AS(
-            SELECT hp.id as hr_plan_id, hpat.id as hr_plan_activity_type_id
-              FROM hr_plan hp JOIN hr_plan_hr_plan_activity_type_rel rel
-            ON hp.id = rel.hr_plan_id JOIN hr_plan_activity_type hpat
-            ON hpat.id = rel.hr_plan_activity_type_id
-        )
-        UPDATE hr_plan_activity_type hpat
-           SET plan_id = tmp.hr_plan_id
-        FROM tmp
-        WHERE hpat.id = tmp.hr_plan_activity_type_id
-        """,
+        SELECT array_agg(hr_plan_id) AS hr_plan_ids, hr_plan_activity_type_id
+        FROM hr_plan_hr_plan_activity_type_rel
+        GROUP BY hr_plan_activity_type_id
+        """
     )
+    for hr_plan_ids, hr_plan_activity_type_id in env.cr.fetchall():
+        hr_plan_activity_type = env["hr.plan.activity.type"].browse(
+            hr_plan_activity_type_id
+        )
+        hr_plans = env["hr.plan"].browse(hr_plan_ids)
+        hr_plan_activity_type.plan_id = hr_plans[:1]
+        if len(hr_plan_ids) > 1:
+            for hr_plan in hr_plans[1:]:
+                hr_plan_activity_type_copy = hr_plan_activity_type.copy()
+                hr_plan_activity_type_copy.plan_id = hr_plan
 
 
 @openupgrade.migrate()
