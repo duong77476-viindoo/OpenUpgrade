@@ -98,6 +98,9 @@ def _fast_fill_analytic_distribution_on_sale_order_line(env):
                         ON tag_rel.sale_order_line_id = so_line.id
                     JOIN account_analytic_distribution dist
                         ON dist.tag_id = tag_rel.account_analytic_tag_id
+                    JOIN account_analytic_tag aat
+                        ON aat.id = tag_rel.account_analytic_tag_id
+                    WHERE aat.active_analytic_distribution = true
                 ) AS all_line_data
                 GROUP BY all_line_data.sale_order_line_id, all_line_data.analytic_account_id
             )

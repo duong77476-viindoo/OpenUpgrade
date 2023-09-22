@@ -39,6 +39,9 @@ def _fill_analytic_distribution(env):
                             ON account_tag_rel.hr_expense_id = he.id
                         JOIN account_analytic_distribution dist
                             ON dist.tag_id = account_tag_rel.account_analytic_tag_id
+                        JOIN account_analytic_tag aat
+                            ON aat.id = account_tag_rel.account_analytic_tag_id
+                        WHERE aat.active_analytic_distribution = true
                     ) AS all_line_data
                     GROUP BY all_line_data.he_id, all_line_data.analytic_account_id
                 )

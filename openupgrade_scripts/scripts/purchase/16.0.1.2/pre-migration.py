@@ -42,6 +42,9 @@ def _fill_analytic_distribution_on_purchase_order_line(env):
                             ON tag_rel.purchase_order_line_id = porder_line.id
                       JOIN account_analytic_distribution dist
                             ON dist.tag_id = tag_rel.account_analytic_tag_id
+                      JOIN account_analytic_tag aat
+                           ON aat.id = tag_rel.account_analytic_tag_id
+                      WHERE aat.active_analytic_distribution = true
                 ) AS all_line_data
                 GROUP BY all_line_data.porder_line_id, all_line_data.account_analytic_id
             )
