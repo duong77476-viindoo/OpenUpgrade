@@ -9,6 +9,8 @@ from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 
 _logger = logging.getLogger(__name__)
 
+NEED_UPDATED_VIEWS_KEYS = ["website.record_cover"]
+
 
 def unlink(self):
     """Don't break on unlink of obsolete records
@@ -58,9 +60,12 @@ def _load_records(self, data_list, update=False):
             related_records = self.env["ir.ui.view"].search(
                 [
                     ("id", "!=", original_record.id),
-                    ("key", "=", original_record.key),
                     ("type", "=", "qweb"),
                     ("website_id", "!=", False),
+                    ("key", "=", original_record.key),
+                    "|",
+                    ("key", "in", NEED_UPDATED_VIEWS_KEYS),
+                    "&",
                     ("arch_db", "=", original_record.arch_db),
                     ("inherit_id", "!=", False),
                 ]
