@@ -243,7 +243,7 @@ def _account_move_fast_fill_display_type(env):
                 aml.id,
                 CASE
                     WHEN am.move_type NOT IN
-                    ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')
+                    ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'in_receipt', 'out_receipt')
                     THEN 'product'
                     WHEN aml.tax_line_id IS NOT NULL THEN 'tax'
                     WHEN aa.account_type IN
