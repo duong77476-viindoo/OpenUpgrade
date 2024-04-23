@@ -168,3 +168,7 @@ def migrate(env, version):
     _fill_project_task_is_analytic_account_id_changed(env)
     _fill_project_task_is_closed(env)
     _fil_project_task_ancestor_id(env)
+    # Remove SQL view project_task_burndown_chart_report not used anymore in Odoo v16.0
+    openupgrade.logged_query(
+        env.cr, "DROP VIEW IF EXISTS project_task_burndown_chart_report CASCADE"
+    )

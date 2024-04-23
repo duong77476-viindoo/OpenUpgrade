@@ -8,4 +8,19 @@
     <field name="default_cash_difference_expense_account_id" ref="ec_expense_cash_difference"/>
     <field name="default_cash_difference_income_account_id" ref="ec_income_cash_difference"/>
   </record>
+  <record id="tax_group_ice" model="account.tax.group">
+    <field name="sequence">5</field>
+  </record>
+  <record id="tax_group_vat0" model="account.tax.group">
+    <field name="sequence">40</field>
+  </record>
+  <record id="tax_group_vat14" model="account.tax.group">
+    <field name="sequence">30</field>
+  </record>
+  <record id="tax_group_vat_12" model="account.tax.group">
+    <field name="sequence">20</field>
+  </record>
+  <record id="tax_group_vat_not_charged" model="account.tax.group">
+    <field name="sequence">50</field>
+  </record>
 </odoo>

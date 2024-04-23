@@ -33,6 +33,7 @@ stock        / stock.move.line          / product_qty (float)           : DEL
 stock        / stock.move.line          / product_uom_qty (float)       : DEL required
 stock        / stock.move.line          / reserved_qty (float)          : NEW isfunction: function, stored
 stock        / stock.move.line          / reserved_uom_qty (float)      : NEW required, hasdefault: default
+stock        / stock.package.type       / _order                        : _order is now 'id' ('sequence')
 stock        / stock.package.type       / base_weight (float)           : NEW
 stock        / stock.picking            / move_ids (one2many)           : NEW relation: stock.move
 stock        / stock.picking            / move_lines (one2many)         : DEL relation: stock.move

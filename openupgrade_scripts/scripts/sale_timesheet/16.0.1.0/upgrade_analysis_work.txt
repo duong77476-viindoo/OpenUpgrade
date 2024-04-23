@@ -4,27 +4,23 @@ obsolete model project.profitability.report [sql_view]
 
 ---Fields in module 'sale_timesheet'---
 sale_timesheet / account.analytic.line    / timesheet_invoice_type (selection): selection_keys is now '['billable_fixed', 'billable_manual', 'billable_milestones', 'billable_time', 'non_billable', 'other_costs', 'other_revenues', 'service_revenues', 'timesheet_revenues']' ('['billable_fixed', 'billable_time', 'non_billable', 'other_costs', 'other_revenues', 'service_revenues', 'timesheet_revenues']')
-# DONE: pre-migration: update the value for timesheet_invoice_type
+# DONE: pre-migration: update the value for timesheet_invoice_type.
 
 sale_timesheet / product.product          / service_policy (selection)    : module is now 'sale_project' ('sale_timesheet')
 sale_timesheet / product.template         / service_policy (selection)    : module is now 'sale_project' ('sale_timesheet')
-# NOTHING TO DO: handle by ORM
+sale_timesheet / project.project          / allow_billable (boolean)      : module is now 'sale_project' ('sale_timesheet')
+# NOTHING TO DO: Module changes handled by ORM.
 
 sale_timesheet / product.template         / service_policy (selection)    : selection_keys is now 'function' ('['delivered_manual', 'delivered_timesheet', 'ordered_timesheet']')
 # NOTHING TO DO: store="False"
 
 sale_timesheet / product.template         / service_type (False)          : selection_keys is now '['manual', 'milestones', 'timesheet']' ('['manual', 'timesheet']')
-# NOTHING TO DO: no keys to change
+sale_timesheet / sale.order.line          / qty_delivered_method (False)  : selection_keys is now '['analytic', 'manual', 'milestones', 'stock_move', 'timesheet']' ('['analytic', 'manual', 'stock_move', 'timesheet']')
+sale_timesheet / sale.order.line          / timesheet_ids (one2many)      : NEW relation: account.analytic.line
+# NOTHING TO DO: New feature of invoicing by milestones.
 
 sale_timesheet / project.project          / allocated_hours (False)       : NEW mode: modify, hasdefault: compute
-sale_timesheet / project.project          / allow_billable (boolean)      : module is now 'sale_project' ('sale_timesheet')
 # NOTHING TO DO
-
-sale_timesheet / sale.order.line          / qty_delivered_method (False)  : selection_keys is now '['analytic', 'manual', 'milestones', 'stock_move', 'timesheet']' ('['analytic', 'manual', 'stock_move', 'timesheet']')
-# NOTHING TO DO: handle at module sale_project
-
-sale_timesheet / sale.order.line          / timesheet_ids (one2many)      : NEW relation: account.analytic.line
-# NOTHING TO Do
 
 ---XML records in module 'sale_timesheet'---
 NEW ir.actions.act_window: sale_timesheet.timesheet_action_from_sales_order_item

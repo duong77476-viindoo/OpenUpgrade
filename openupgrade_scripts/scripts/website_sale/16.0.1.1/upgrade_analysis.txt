@@ -78,6 +78,7 @@ NEW ir.ui.view: website_sale.products_categories_top
 NEW ir.ui.view: website_sale.products_design_card
 NEW ir.ui.view: website_sale.products_design_grid
 NEW ir.ui.view: website_sale.products_design_thumbs
+NEW ir.ui.view: website_sale.products_fiscal_position
 NEW ir.ui.view: website_sale.products_thumb_2_3
 NEW ir.ui.view: website_sale.products_thumb_4_3
 NEW ir.ui.view: website_sale.products_thumb_4_5

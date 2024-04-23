@@ -75,6 +75,7 @@ NEW ir.model.access: mail.access_mail_gateway_allowed_system
 NEW ir.model.access: mail.access_mail_link_preview_admin
 NEW ir.model.access: mail.access_mail_message_scheduled_all
 NEW ir.model.access: mail.access_mail_message_scheduled_system
+NEW ir.model.access: mail.access_mail_message_subtype_system
 NEW ir.model.access: mail.access_mail_template_reset
 DEL ir.model.access: fetchmail.access_fetchmail_server [renamed to mail module]
 DEL ir.model.access: mail.access_mail_channel_partner_portal

@@ -548,6 +548,55 @@ def _force_install_viin_analytic_tag_module(env):
             viin_analytic_tag_module.button_upgrade()
 
 
+def _fast_fill_account_payment_amount_company_currency_signed(env):
+    """Avoid the heavy recomputation of this field precreating the column and
+    filling it for the simple case. The rest will be done on post-migration.
+    """
+    openupgrade.logged_query(
+        env.cr,
+        "ALTER TABLE account_payment "
+        "ADD COLUMN IF NOT EXISTS amount_company_currency_signed numeric",
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_payment ap
+        SET amount_company_currency_signed = (
+            CASE
+                WHEN payment_type = 'inbound'
+                THEN amount
+                ELSE -amount
+            END
+        )
+        FROM res_company rc,
+            account_move am
+        WHERE ap.currency_id = rc.currency_id
+            AND am.id = ap.move_id
+            AND rc.id = am.company_id
+        """,
+    )
+
+
+def _account_journal_payment_sequence(env):
+    """Add manually this field with False value to avoid different behavior from v15,
+    where there's only one number sequence for whole journal.
+    """
+    openupgrade.add_fields(
+        env,
+        [
+            (
+                "payment_sequence",
+                "account.journal",
+                "account_journal",
+                "boolean",
+                False,
+                "account",
+                False,
+            )
+        ],
+    )
+
+
 @openupgrade.migrate()
 def migrate(env, version):
     openupgrade.rename_xmlids(env.cr, _xmlids_renames)
@@ -567,4 +616,6 @@ def migrate(env, version):
     _account_analytic_distribution_model_generate(env)
     _aml_fast_fill_analytic_distribution(env)
     _arml_fast_fill_analytic_distribution(env)
+    _fast_fill_account_payment_amount_company_currency_signed(env)
+    _account_journal_payment_sequence(env)
     _force_install_viin_analytic_tag_module(env)

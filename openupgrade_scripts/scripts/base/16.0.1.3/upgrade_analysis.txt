@@ -21,7 +21,6 @@ base         / res.company              / active (boolean)              : NEW ha
 base         / res.company              / company_registry (char)       : not stored anymore
 base         / res.company              / company_registry (char)       : now related
 base         / res.company              / font (selection)              : selection_keys is now '['Lato', 'Montserrat', 'Open_Sans', 'Oswald', 'Raleway', 'Roboto', 'Tajawal']' ('['Lato', 'Montserrat', 'Open_Sans', 'Oswald', 'Raleway', 'Roboto']')
-base         / res.partner              / _order                        : _order is now 'display_name, id' ('display_name')
 base         / res.partner              / company_registry (char)       : NEW hasdefault: compute
 base         / res.partner              / credit_limit (float)          : module is now 'account' ('base')
 base         / res.partner              / credit_limit (float)          : not stored anymore
@@ -61,31 +60,76 @@ DEL ir.ui.view: base.view_translation_tree
 DEL ir.ui.view: base.wizard_update_translations
 NEW res.country.group: base.ch_and_li (noupdate)
 NEW res.country.state: base.state_ch_ag
+NEW res.country.state: base.state_ch_ag_fr
+NEW res.country.state: base.state_ch_ag_it
 NEW res.country.state: base.state_ch_ai
+NEW res.country.state: base.state_ch_ai_fr
+NEW res.country.state: base.state_ch_ai_it
 NEW res.country.state: base.state_ch_ar
+NEW res.country.state: base.state_ch_ar_fr
+NEW res.country.state: base.state_ch_ar_it
 NEW res.country.state: base.state_ch_be
+NEW res.country.state: base.state_ch_be_fr
+NEW res.country.state: base.state_ch_be_it
 NEW res.country.state: base.state_ch_bl
+NEW res.country.state: base.state_ch_bl_fr
+NEW res.country.state: base.state_ch_bl_it
 NEW res.country.state: base.state_ch_bs
+NEW res.country.state: base.state_ch_bs_fr
+NEW res.country.state: base.state_ch_bs_it
 NEW res.country.state: base.state_ch_fr
+NEW res.country.state: base.state_ch_fr_fr
+NEW res.country.state: base.state_ch_fr_it
 NEW res.country.state: base.state_ch_ge
+NEW res.country.state: base.state_ch_ge_fr
+NEW res.country.state: base.state_ch_ge_it
 NEW res.country.state: base.state_ch_gl
+NEW res.country.state: base.state_ch_gl_fr
+NEW res.country.state: base.state_ch_gl_it
 NEW res.country.state: base.state_ch_gr
+NEW res.country.state: base.state_ch_gr_fr
+NEW res.country.state: base.state_ch_gr_it
 NEW res.country.state: base.state_ch_ju
+NEW res.country.state: base.state_ch_ju_it
 NEW res.country.state: base.state_ch_lu
+NEW res.country.state: base.state_ch_lu_fr
+NEW res.country.state: base.state_ch_lu_it
 NEW res.country.state: base.state_ch_ne
+NEW res.country.state: base.state_ch_ne_fr
 NEW res.country.state: base.state_ch_nw
+NEW res.country.state: base.state_ch_nw_fr
+NEW res.country.state: base.state_ch_nw_it
 NEW res.country.state: base.state_ch_ow
+NEW res.country.state: base.state_ch_ow_fr
+NEW res.country.state: base.state_ch_ow_it
 NEW res.country.state: base.state_ch_sg
+NEW res.country.state: base.state_ch_sg_fr
+NEW res.country.state: base.state_ch_sg_it
 NEW res.country.state: base.state_ch_sh
+NEW res.country.state: base.state_ch_sh_fr
+NEW res.country.state: base.state_ch_sh_it
 NEW res.country.state: base.state_ch_so
+NEW res.country.state: base.state_ch_so_fr
+NEW res.country.state: base.state_ch_so_it
 NEW res.country.state: base.state_ch_sz
+NEW res.country.state: base.state_ch_sz_it
 NEW res.country.state: base.state_ch_tg
+NEW res.country.state: base.state_ch_tg_fr
+NEW res.country.state: base.state_ch_tg_it
 NEW res.country.state: base.state_ch_ti
+NEW res.country.state: base.state_ch_ti_it
 NEW res.country.state: base.state_ch_ur
 NEW res.country.state: base.state_ch_vd
+NEW res.country.state: base.state_ch_vd_fr
 NEW res.country.state: base.state_ch_vs
+NEW res.country.state: base.state_ch_vs_fr
+NEW res.country.state: base.state_ch_vs_it
 NEW res.country.state: base.state_ch_zg
+NEW res.country.state: base.state_ch_zg_fr
+NEW res.country.state: base.state_ch_zg_it
 NEW res.country.state: base.state_ch_zh
+NEW res.country.state: base.state_ch_zh_fr
+NEW res.country.state: base.state_ch_zh_it
 NEW res.country.state: base.state_th_001
 NEW res.country.state: base.state_th_002
 NEW res.country.state: base.state_th_003

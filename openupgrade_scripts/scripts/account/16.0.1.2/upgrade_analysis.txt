@@ -113,6 +113,7 @@ account      / account.move             / currency_id (many2one)        : now a 
 account      / account.move             / invoice_outstanding_credits_debits_widget (text): type is now 'binary' ('text')
 account      / account.move             / invoice_payments_widget (text): type is now 'binary' ('text')
 account      / account.move             / is_storno (boolean)           : NEW hasdefault: compute
+account      / account.move             / journal_id (many2one)         : now a function
 account      / account.move             / name (char)                   : now a function
 account      / account.move             / partner_shipping_id (many2one): previously in module sale
 account      / account.move             / payment_ids (one2many)        : NEW relation: account.payment

@@ -1,6 +1,3 @@
-# Copyright 2020 Odoo Community Association (OCA)
-# Copyright 2020 Opener B.V. <stefan@opener.am>
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 import logging
 
 from openupgradelib import openupgrade
@@ -39,6 +36,21 @@ _RENAMED_CHANGED_MODELS_NAME = [
     # saas-infrastructure-common
     ("progress_task", "model"),
 ]
+
+
+def enable_coupon_sharing_within_entity(cr):
+    """Check before merging `coupon_commercial_partner_applicability` into
+    `loyalty_partner_applicability` if it was installed in v15 to set the parameter
+    to True to keep the same functionality"""
+    if openupgrade.is_module_installed(cr, "coupon_commercial_partner_applicability"):
+        # The value of the configuration parameter is set to True.
+        openupgrade.logged_query(
+            cr,
+            """
+            INSERT INTO ir_config_parameter (key, value)
+            VALUES ('loyalty_partner_applicability.allow_coupon_sharing', 'true')
+            """,
+        )
 
 
 def login_or_registration_required_at_checkout(cr):
@@ -80,9 +92,11 @@ def migrate(cr, version):
             "when migrating your database."
         )
     login_or_registration_required_at_checkout(cr)
+    enable_coupon_sharing_within_entity(cr)
     openupgrade.update_module_names(cr, renamed_modules.items())
     openupgrade.update_module_names(cr, merged_modules.items(), merge_modules=True)
-    # restricting inherited views to groups isn't allowed any more
+    openupgrade.clean_transient_models(cr)
+    # restricting inherited views to groups isn't allowed anymore
     cr.execute(
         "DELETE FROM ir_ui_view_group_rel r "
         "USING ir_ui_view v "

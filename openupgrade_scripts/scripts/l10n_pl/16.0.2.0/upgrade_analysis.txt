@@ -1,6 +1,7 @@
 ---Models in module 'l10n_pl'---
 ---Fields in module 'l10n_pl'---
 ---XML records in module 'l10n_pl'---
+NEW account.account.tag: l10n_pl.gold_tag (noupdate)
 NEW account.account.template: l10n_pl.chart10090000
 NEW account.account.template: l10n_pl.chart14000000
 NEW account.account.template: l10n_pl.chart15020300
@@ -101,6 +102,8 @@ NEW account.report.expression: l10n_pl.account_tax_report_line_do_przeniesienia_
 NEW account.report.expression: l10n_pl.account_tax_report_line_dostawa_towarow_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_eksport_towarow_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_import_uslug_tag
+NEW account.report.expression: l10n_pl.account_tax_report_line_intracom_procedure_i_42_tag
+NEW account.report.expression: l10n_pl.account_tax_report_line_intracom_procedure_i_63_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_kasy_rejestrujace_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_korekta_art89b1_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_korekta_art89b4_tag
@@ -131,6 +134,8 @@ NEW account.report.expression: l10n_pl.account_tax_report_line_podatek_uslug_poz
 NEW account.report.expression: l10n_pl.account_tax_report_line_podatnik_nabywca_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_poza_kraj_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_towary_art_129_tag
+NEW account.report.expression: l10n_pl.account_tax_report_line_triangular_2nd_payer_tag
+NEW account.report.expression: l10n_pl.account_tax_report_line_triangular_buyer_2nd_payer_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_uslug_pozostalych_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_uslug_s_trwale_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_uslugi_art_100_1_4_tag
@@ -139,8 +144,12 @@ NEW account.report.expression: l10n_pl.account_tax_report_line_uslugi_kraj_0_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_wewnątrzwspólnotowe_103_5a_tag
 NEW account.report.expression: l10n_pl.account_tax_report_line_zaniechaniem_poboru_tag
 NEW account.report.expression: l10n_pl.tax_report_line_do_przeniesienia_carryover
+NEW account.report.line: l10n_pl.account_tax_report_line_intracom_procedure_i_42
+NEW account.report.line: l10n_pl.account_tax_report_line_intracom_procedure_i_63
 NEW account.report.line: l10n_pl.account_tax_report_line_korekta_art89b1
 NEW account.report.line: l10n_pl.account_tax_report_line_korekta_art89b4
+NEW account.report.line: l10n_pl.account_tax_report_line_triangular_2nd_payer
+NEW account.report.line: l10n_pl.account_tax_report_line_triangular_buyer_2nd_payer
 NEW account.report.line: l10n_pl.account_tax_report_line_wewnątrzwspólnotowe_103_5a
 DEL account.tax.report.line: l10n_pl.account_tax_report_line_do_US
 DEL account.tax.report.line: l10n_pl.account_tax_report_line_do_zwrotu_180_dni
@@ -149,5 +158,10 @@ DEL account.tax.report.line: l10n_pl.account_tax_report_line_do_zwrotu_60_dni
 DEL account.tax.report.line: l10n_pl.account_tax_report_line_nad_naleznym
 DEL account.tax.report.line: l10n_pl.account_tax_report_line_pl_03_01_01_04_02
 DEL account.tax.report.line: l10n_pl.account_tax_report_line_podatek_do_zwrotu
+NEW account.tax.template: l10n_pl.vs_kraj_zw_gold
+NEW account.tax.template: l10n_pl.vs_unia_i42
+NEW account.tax.template: l10n_pl.vs_unia_i63
+NEW account.tax.template: l10n_pl.vs_unia_triangular
 NEW account.tax.template: l10n_pl.vs_zwrot_podróżnych_0
+NEW account.tax.template: l10n_pl.vz_unia_triangular
 DEL ir.ui.menu: l10n_pl.account_reports_pl_statements_menu

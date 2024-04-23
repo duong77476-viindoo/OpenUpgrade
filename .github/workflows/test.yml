@@ -85,7 +85,6 @@ jobs:
               unixodbc-dev
       - name: Requirements Installation
         run: |
-          sudo npm install -g less less-plugin-clean-css
           pip install -q -r odoo/requirements.txt
           pip install --ignore-installed \
               git+https://github.com/duong77476/openupgradelib@master
