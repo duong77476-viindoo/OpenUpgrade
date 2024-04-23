@@ -1,6 +1,5 @@
 from openupgradelib import openupgrade
 
-
 _translations_to_delete = [
     "email_template_edi_credit_note",
     "email_template_edi_invoice",

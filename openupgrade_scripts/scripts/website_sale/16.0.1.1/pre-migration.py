@@ -81,4 +81,3 @@ def migrate(env, version):
         filter_products_price_views.unlink()
     _remove_view_inheritance(env)
     _remove_incorrect_website_sale_extra_field_records(env)
-
