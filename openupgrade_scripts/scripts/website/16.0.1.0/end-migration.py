@@ -76,8 +76,26 @@ def rename_t_group_website_restricted_editor(env):
         )
 
 
+def _sync_website_visitor_access_token(env):
+    """
+    Following pr https://github.com/odoo/odoo/pull/110870
+    this is needed
+    """
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE website_visitor
+            SET access_token = partner_id::text
+        WHERE partner_id IS NOT NULL AND NOT EXISTS (
+        SELECT 1 FROM website_visitor t1 WHERE t1.access_token = t1.partner_id::text
+        );
+        """,
+    )
+
+
 @openupgrade.migrate()
 def migrate(env, version):
     convert_custom_qweb_templates_bootstrap_4to5(env)
     convert_field_html_string_bootstrap_4to5(env)
     rename_t_group_website_restricted_editor(env)
+    _sync_website_visitor_access_token(env)
