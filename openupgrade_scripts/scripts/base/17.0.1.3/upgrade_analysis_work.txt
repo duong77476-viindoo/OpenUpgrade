@@ -1,17 +1,23 @@
 ---Models in module 'base'---
 obsolete model ir.server.object.lines
+# Done pre-migration: fill value into ir.actions.server
+
 new model ir.model.inherit
+# NOTHING TO DO: new feature to store model inheritance tree handle by Odoo registry itself
+
 model res.users.settings (moved from mail)
-# TODO
+# Done pre-migration: rename xml
 
 ---Fields in module 'base'---
 base         / ir.actions.act_url       / target (selection)            : selection_keys is now '['download', 'new', 'self']' ('['new', 'self']')
 base         / ir.actions.act_window    / mobile_view_mode (char)       : NEW hasdefault: default
+# NOTHING TO DO: new feature
+
 base         / ir.actions.server        / evaluation_type (selection)   : NEW selection_keys: ['equation', 'value'], hasdefault: default
 base         / ir.actions.server        / fields_lines (one2many)       : DEL relation: ir.server.object.lines
 base         / ir.actions.server        / resource_ref (reference)      : NEW
 base         / ir.actions.server        / selection_value (many2one)    : NEW relation: ir.model.fields.selection
-# TODO
+# Done pre-migration: fill value into ir.actions.server
 
 base         / ir.actions.server        / state (selection)             : selection_keys is now '['code', 'multi', 'object_create', 'object_write', 'webhook']' ('['code', 'multi', 'object_create', 'object_write']')
 # NOTHING TO DO: new feature
@@ -24,7 +30,7 @@ base         / ir.actions.server        / update_related_model_id (many2one): NE
 base         / ir.actions.server        / value (text)                  : NEW
 base         / ir.actions.server        / webhook_field_ids (many2many) : NEW relation: ir.model.fields
 base         / ir.actions.server        / webhook_url (char)            : NEW
-# TODO
+# Done pre-migration: fill value into ir.actions.server
 
 base         / ir.cron                  / cron_name (char)              : not related anymore
 base         / ir.cron                  / cron_name (char)              : now a function
@@ -41,10 +47,12 @@ base         / ir.model.fields          / sanitize_style (boolean)      : NEW ha
 base         / ir.model.fields          / sanitize_tags (boolean)       : NEW hasdefault: default
 base         / ir.model.fields          / strip_classes (boolean)       : NEW hasdefault: default
 base         / ir.model.fields          / strip_style (boolean)         : NEW hasdefault: default
+# NOTHING TO DO: handle by odoo registry itself
+
 base         / ir.model.inherit         / model_id (many2one)           : NEW relation: ir.model, required
 base         / ir.model.inherit         / parent_field_id (many2one)    : NEW relation: ir.model.fields
 base         / ir.model.inherit         / parent_id (many2one)          : NEW relation: ir.model, required
-# TODO
+# NOTHING TO DO: new feature to store model inheritance tree handle by Odoo registry itself
 
 base         / ir.property              / type (selection)              : selection_keys is now '['binary', 'boolean', 'char', 'date', 'datetime', 'float', 'html', 'integer', 'many2one', 'selection', 'text']' ('['binary', 'boolean', 'char', 'date', 'datetime', 'float', 'integer', 'many2one', 'selection', 'text']')
 # NOTHING TO DO: new feature
@@ -53,18 +61,36 @@ base         / ir.server.object.lines   / col1 (many2one)               : DEL re
 base         / ir.server.object.lines   / evaluation_type (selection)   : DEL required, selection_keys: ['equation', 'reference', 'value']
 base         / ir.server.object.lines   / server_id (many2one)          : DEL relation: ir.actions.server
 base         / ir.server.object.lines   / value (text)                  : DEL required
+# Done pre-migration: fill value into ir.actions.server
+
 base         / ir.ui.view               / field_parent (char)           : DEL
+# NOTHING TO DO: deprecated from very longtime ago since https://github.com/odoo/odoo/commit/905e01921f3c3ef43ace6fc537d1d8c0d280002c 2017
+
 base         / res.company              / all_child_ids (one2many)      : NEW relation: res.company
-base         / res.company              / base_onboarding_company_state (selection): DEL selection_keys: ['done', 'just_done', 'not_done']
-base         / res.company              / favicon (binary)              : DEL attachment: True
 base         / res.company              / parent_path (char)            : NEW
+# NOTHING TO DO: new branch feature
+
+base         / res.company              / base_onboarding_company_state (selection): DEL selection_keys: ['done', 'just_done', 'not_done']
+# NOTHING TO DO: but need to do in account module and some module that will use onboarding at post_install perhaps , use _search_or_create_progress method
+
+base         / res.company              / favicon (binary)              : DEL attachment: True
+# NOTHING TO DO: remove feature without replacement
+
 base         / res.company              / uses_default_logo (boolean)   : NEW isfunction: function, stored
+# NOTHING TO DO: computed by ORM
+
 base         / res.country              / code (char)                   : now required
+# NOTHING TO DO: if it blank we will know where to fill in, normally it doesn't blank
+
 base         / res.partner              / _order                        : _order is now 'complete_name ASC, id DESC' ('display_name ASC, id DESC')
+# NOTHING TO DO
+
 base         / res.partner              / complete_name (char)          : NEW isfunction: function, stored
 base         / res.partner              / display_name (char)           : not stored anymore
+# Done pre/post-migration: create column in pre and fill value in post
+
 base         / res.partner              / type (selection)              : selection_keys is now '['contact', 'delivery', 'invoice', 'other']' ('['contact', 'delivery', 'invoice', 'other', 'private']')
-# TODO
+# Done pre-migration: update 'private' type with 'contact' type
 
 base         / res.users                / res_users_settings_id (many2one): previously in module mail
 base         / res.users                / res_users_settings_ids (one2many): previously in module mail
