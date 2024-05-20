@@ -20,14 +20,53 @@ def _fill_res_company_alias_domain_id(env):
     if domain:
         alias_domain = env["mail.alias.domain"].create(
             {
-                "bounce_alias": icp.get_param("mail.bounce.alias"),
-                "catchall_alias": icp.get_param("mail.catchall.alias"),
-                "default_from": icp.get_param("mail.default.from"),
+                "bounce_alias": icp.get_param("mail.bounce.alias") or "bounce",
+                "catchall_alias": icp.get_param("mail.catchall.alias") or "catchall",
+                "default_from": icp.get_param("mail.default.from") or "notifications",
                 "name": domain,
             }
         )
         companies = env["res.company"].with_context(active_test=False).search([])
         companies.write({"alias_domain_id": alias_domain.id})
+
+
+def _mail_alias_fill_alias_full_name(env):
+    # Because we fill same alias domain for every company so only need one here
+    company = env["res.company"].search([], limit=1)
+    if company.alias_domain_id:
+        openupgrade.logged_query(
+            env.cr,
+            f"""
+            UPDATE mail_alias
+            SET alias_domain_id = {company.alias_domain_id.id},
+                alias_full_name = CASE
+                    WHEN alias_name IS NOT NULL
+                    THEN alias_name || '@' || '{company.alias_domain_id.name}'
+                    ELSE NULL
+                END
+            """,
+        )
+    else:
+        openupgrade.logged_query(
+            env.cr,
+            """
+            UPDATE mail_alias
+            SET alias_full_name = CASE
+                WHEN alias_name IS NOT NULL THEN alias_name
+                ELSE NULL
+            END
+            """,
+        )
+
+
+def _mail_template_convert_report_template_m2o_to_m2m(env):
+    openupgrade.m2o_to_x2m(
+        env.cr,
+        env["mail.template"],
+        "mail_template",
+        "report_template_ids",
+        "report_template",
+    )
 
 
 @openupgrade.migrate()
@@ -38,3 +77,5 @@ def migrate(env, version):
         _deleted_xml_records,
     )
     _fill_res_company_alias_domain_id(env)
+    _mail_alias_fill_alias_full_name(env)
+    _mail_template_convert_report_template_m2o_to_m2m(env)
