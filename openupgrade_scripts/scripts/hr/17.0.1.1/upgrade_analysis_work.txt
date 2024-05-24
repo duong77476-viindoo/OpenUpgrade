@@ -1,34 +1,26 @@
 ---Models in module 'hr'---
 obsolete model hr.plan
 obsolete model hr.plan.activity.type
+# DONE pre-migration: move data into mail.activity.plan
+
 obsolete model hr.plan.wizard [transient]
+# NOTHING TO DO
+
 ---Fields in module 'hr'---
 hr           / discuss.channel          / subscription_department_ids (many2many): NEW relation: hr.department
+hr           / mail.channel             / subscription_department_ids (many2many): DEL relation: hr.department
+# NOTHING TO DO
+
 hr           / hr.contract.type         / code (char)                   : NEW hasdefault: compute
+# TODO pre-migration: create column and fill value using 'name'
+
 hr           / hr.contract.type         / country_id (many2one)         : NEW relation: res.country
+# NOTHING TO DO: new feature
+
 hr           / hr.department            / message_main_attachment_id (many2one): DEL relation: ir.attachment
+# NOTHING TO DO
+
 hr           / hr.department            / plan_ids (one2many)           : relation is now 'mail.activity.plan' ('hr.plan') [nothing to do]
-hr           / hr.department            / rating_ids (one2many)         : NEW relation: rating.rating
-hr           / hr.departure.reason      / reason_code (integer)         : NEW
-hr           / hr.employee              / activity_user_id (many2one)   : not related anymore
-hr           / hr.employee              / activity_user_id (many2one)   : now a function
-hr           / hr.employee              / address_home_id (many2one)    : DEL relation: res.partner
-hr           / hr.employee              / employee_properties (properties): NEW hasdefault: compute
-hr           / hr.employee              / lang (selection)              : is now stored
-hr           / hr.employee              / lang (selection)              : not related anymore
-hr           / hr.employee              / private_car_plate (char)      : NEW
-hr           / hr.employee              / private_city (char)           : NEW
-hr           / hr.employee              / private_country_id (many2one) : NEW relation: res.country
-hr           / hr.employee              / private_email (char)          : is now stored
-hr           / hr.employee              / private_email (char)          : not related anymore
-hr           / hr.employee              / private_phone (char)          : NEW
-hr           / hr.employee              / private_state_id (many2one)   : NEW relation: res.country.state
-hr           / hr.employee              / private_street (char)         : NEW
-hr           / hr.employee              / private_street2 (char)        : NEW
-hr           / hr.employee              / private_zip (char)            : NEW
-hr           / hr.employee              / rating_ids (one2many)         : NEW relation: rating.rating
-hr           / hr.job                   / message_main_attachment_id (many2one): DEL relation: ir.attachment
-hr           / hr.job                   / rating_ids (one2many)         : NEW relation: rating.rating
 hr           / hr.plan                  / active (boolean)              : DEL
 hr           / hr.plan                  / company_id (many2one)         : DEL relation: res.company
 hr           / hr.plan                  / department_id (many2one)      : DEL relation: hr.department
@@ -41,11 +33,47 @@ hr           / hr.plan.activity.type    / plan_id (many2one)            : DEL re
 hr           / hr.plan.activity.type    / responsible (selection)       : DEL required, selection_keys: ['coach', 'employee', 'manager', 'other']
 hr           / hr.plan.activity.type    / responsible_id (many2one)     : DEL relation: res.users
 hr           / hr.plan.activity.type    / summary (char)                : DEL
-hr           / hr.work.location         / location_type (selection)     : NEW required, selection_keys: ['home', 'office', 'other'], hasdefault: default
 hr           / mail.activity.plan       / department_id (many2one)      : NEW relation: hr.department, hasdefault: compute
 hr           / mail.activity.plan.template / responsible_type (False)      : NEW selection_keys: ['coach', 'employee', 'manager', 'on_demand', 'other'], mode: modify
-hr           / mail.channel             / subscription_department_ids (many2many): DEL relation: hr.department
+# DONE pre-migration: move data into mail.activity.plan
+
+hr           / hr.department            / rating_ids (one2many)         : NEW relation: rating.rating
+# NOTHING TO DO
+
+hr           / hr.departure.reason      / reason_code (integer)         : NEW
+# DONE post-migration: load noupdate
+
+hr           / hr.employee              / activity_user_id (many2one)   : not related anymore
+hr           / hr.employee              / activity_user_id (many2one)   : now a function
+# NOTHING TO DO: no store field
+
+hr           / hr.employee              / employee_properties (properties): NEW hasdefault: compute
 hr           / res.company              / employee_properties_definition (properties_definition): NEW
+hr           / hr.employee              / private_car_plate (char)      : NEW
+# NOTHING TO DO: new feature
+
+hr           / hr.employee              / address_home_id (many2one)    : DEL relation: res.partner
+hr           / hr.employee              / lang (selection)              : is now stored
+hr           / hr.employee              / lang (selection)              : not related anymore
+hr           / hr.employee              / private_city (char)           : NEW
+hr           / hr.employee              / private_country_id (many2one) : NEW relation: res.country
+hr           / hr.employee              / private_email (char)          : is now stored
+hr           / hr.employee              / private_email (char)          : not related anymore
+hr           / hr.employee              / private_phone (char)          : NEW
+hr           / hr.employee              / private_state_id (many2one)   : NEW relation: res.country.state
+hr           / hr.employee              / private_street (char)         : NEW
+hr           / hr.employee              / private_street2 (char)        : NEW
+hr           / hr.employee              / private_zip (char)            : NEW
+# DONE pre_migration: create column and fill value from address_home_id and merge merge 'address_home_id' into 'work_contact_id' at end-migration
+
+hr           / hr.employee              / rating_ids (one2many)         : NEW relation: rating.rating
+hr           / hr.job                   / message_main_attachment_id (many2one): DEL relation: ir.attachment
+hr           / hr.job                   / rating_ids (one2many)         : NEW relation: rating.rating
+# NOTHING TO DO:
+
+hr           / hr.work.location         / location_type (selection)     : NEW required, selection_keys: ['home', 'office', 'other'], hasdefault: default
+# TODO pre-migration: create column and update it with default value
+
 ---XML records in module 'hr'---
 NEW hr.contract.type: hr.contract_type_full_time (noupdate)
 NEW hr.contract.type: hr.contract_type_part_time (noupdate)
