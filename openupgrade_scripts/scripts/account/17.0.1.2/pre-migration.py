@@ -193,3 +193,11 @@ def migrate(env, version):
     _map_account_report_filter_account_type(env)
     _map_chart_template_id_to_chart_template(env, "res_company")
     _map_chart_template_id_to_chart_template(env, "account_report")
+    # Drop triagram index on name column of account.account
+    # to avoid error when loading registry, it will be recreated
+    openupgrade.logged_query(
+        env.cr,
+        """
+        DROP INDEX IF EXISTS account_account_name_index;
+        """,
+    )
