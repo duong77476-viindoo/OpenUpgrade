@@ -1,13 +1,21 @@
 ---Models in module 'hr_timesheet'---
 new model hr.employee.delete.wizard [transient]
+# NOTHING TO DO
+
 ---Fields in module 'hr_timesheet'---
 hr_timesheet / account.analytic.line    / ancestor_task_id (many2one)   : DEL relation: project.task
 hr_timesheet / account.analytic.line    / parent_task_id (many2one)     : NEW relation: project.task, isrelated: related, stored
+# TODO pre-migration: rename field
+
 hr_timesheet / project.project          / timesheet_encode_uom_id (many2one): not related anymore
 hr_timesheet / project.project          / timesheet_encode_uom_id (many2one): now a function
+# NOTHING TO DO: no store field
+
 hr_timesheet / project.update           / allocated_time (integer)      : NEW
 hr_timesheet / project.update           / timesheet_time (integer)      : NEW
 hr_timesheet / project.update           / uom_id (many2one)             : NEW relation: uom.uom
+# DONE post-migration: fill value
+
 ---XML records in module 'hr_timesheet'---
 DEL ir.actions.act_window.view: hr_timesheet.timesheet_action_view_from_employee_list
 NEW ir.actions.server: hr_timesheet.unlink_employee_action
