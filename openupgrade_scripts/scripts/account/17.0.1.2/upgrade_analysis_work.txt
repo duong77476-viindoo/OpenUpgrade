@@ -4,17 +4,23 @@ obsolete model account.fiscal.position.account.template
 obsolete model account.fiscal.position.tax.template
 obsolete model account.fiscal.position.template
 obsolete model account.group.template
-obsolete model account.invoice.send [transient]
 obsolete model account.reconcile.model.line.template
 obsolete model account.reconcile.model.template
 obsolete model account.tax.repartition.line.template
 obsolete model account.tax.template
+# NOTHING TO DO: these models has been convert to csv definition
+
+obsolete model account.invoice.send [transient]
 new model account.move.send [transient]
+# NOTHING TO DO
+
 ---Fields in module 'account'---
 account      / account.account          / _order                        : _order is now 'code, company_id' ('is_off_balance, code, company_id')
 account      / account.account          / is_off_balance (boolean)      : DEL
 account      / account.account          / message_main_attachment_id (many2one): DEL relation: ir.attachment
 account      / account.account          / rating_ids (one2many)         : NEW relation: rating.rating
+# NOTHING TO DO
+
 account      / account.account.template / account_type (selection)      : DEL selection_keys: ['asset_cash', 'asset_current', 'asset_fixed', 'asset_non_current', 'asset_prepayments', 'asset_receivable', 'equity', 'equity_unaffected', 'expense', 'expense_depreciation', 'expense_direct_cost', 'income', 'income_other', 'liability_credit_card', 'liability_current', 'liability_non_current', 'liability_payable', 'off_balance']
 account      / account.account.template / chart_template_id (many2one)  : DEL relation: account.chart.template
 account      / account.account.template / code (char)                   : DEL required
@@ -86,12 +92,19 @@ account      / account.fiscal.position.template / tax_ids (one2many)            
 account      / account.fiscal.position.template / vat_required (boolean)        : DEL
 account      / account.fiscal.position.template / zip_from (char)               : DEL
 account      / account.fiscal.position.template / zip_to (char)                 : DEL
+# NOTHING TO DO
+
 account      / account.full.reconcile   / name (char)                   : DEL required
+account      / account.move.line        / matching_number (char)        : not a function anymore
+# NOTHING TO DO
+
 account      / account.group.template   / chart_template_id (many2one)  : DEL relation: account.chart.template, required
 account      / account.group.template   / code_prefix_end (char)        : DEL
 account      / account.group.template   / code_prefix_start (char)      : DEL
 account      / account.group.template   / name (char)                   : DEL required
 account      / account.group.template   / parent_id (many2one)          : DEL relation: account.group.template
+# NOTHING TO DO
+
 account      / account.journal          / access_token (char)           : NEW
 account      / account.journal          / activity_user_id (many2one)   : not related anymore
 account      / account.journal          / activity_user_id (many2one)   : now a function
@@ -104,23 +117,46 @@ account      / account.journal          / rating_ids (one2many)         : NEW re
 account      / account.move             / _order                        : _order is now 'date desc, name desc, invoice_date desc, id desc' ('date desc, name desc, id desc')
 account      / account.move             / activity_user_id (many2one)   : not related anymore
 account      / account.move             / activity_user_id (many2one)   : now a function
+# NOTHING TO DO
+
 account      / account.move             / amount_total_words (char)     : previously in module l10n_dz
+# NOTHING TO DO: compute no store
+
 account      / account.move             / delivery_date (date)          : NEW isfunction: function, stored
+# DONE pre-migration: Create column then in module need them like l10n_de and sale_stock will fill value, https://github.com/odoo/odoo/pull/116643
+
 account      / account.move             / incoterm_location (char)      : NEW hasdefault: compute
+# DONE pre-migration: Create column then in sale_stock, purchase_stock will fill it in pre, pr: https://github.com/odoo/odoo/pull/118954
+
 account      / account.move             / invoice_pdf_report_file (binary): NEW attachment: True
+# DONE post-migration: update message_main_attachment_id with res_field and res_id of each invoice, see '_link_invoice_documents' in 'account.move.send'
+
 account      / account.move             / rating_ids (one2many)         : NEW relation: rating.rating
 account      / account.move             / send_and_print_values (json)  : NEW
+# NOTHING TO DO
+
 account      / account.move.line        / discount_percentage (float)   : DEL
 account      / account.move.line        / display_type (selection)      : selection_keys is now '['cogs', 'discount', 'epd', 'line_note', 'line_section', 'payment_term', 'product', 'rounding', 'tax']' ('['cogs', 'epd', 'line_note', 'line_section', 'payment_term', 'product', 'rounding', 'tax']')
+# NOTHING TO DO: new feature https://github.com/odoo/odoo/pull/133286
+
 account      / account.move.line        / invoice_date (date)           : NEW isrelated: related, stored
-account      / account.move.line        / matching_number (char)        : not a function anymore
+# DONE pre-migration: create column and fill value
+
 account      / account.move.line        / tax_audit (char)              : DEL
+# NOTHING TO DO: deprecated
+
 account      / account.partial.reconcile / company_id (many2one)         : not related anymore
+# NOTHING TO DO
+
 account      / account.payment          / activity_user_id (many2one)   : not related anymore
 account      / account.payment          / activity_user_id (many2one)   : now a function
 account      / account.payment          / amount_total_words (char)     : previously in module l10n_dz
-account      / account.payment          / qr_code (char)                : type is now 'html' ('char')
 account      / account.payment          / rating_ids (one2many)         : NEW relation: rating.rating
+# NOTHING TO DO
+
+account      / account.payment          / qr_code (char)                : type is now 'html' ('char')
+# NOTHING TO DO: no store field
+
 account      / account.payment.term     / currency_id (many2one)        : NEW relation: res.currency, hasdefault: default
 account      / account.payment.term     / discount_days (integer)       : NEW hasdefault: default
 account      / account.payment.term     / discount_percentage (float)   : NEW hasdefault: default
@@ -135,6 +171,8 @@ account      / account.payment.term.line / end_month (boolean)           : DEL
 account      / account.payment.term.line / months (integer)              : DEL required
 account      / account.payment.term.line / nb_days (integer)             : NEW hasdefault: compute
 account      / account.payment.term.line / value (selection)             : selection_keys is now '['fixed', 'percent']' ('['balance', 'fixed', 'percent']')
+# DONE pre-migration: update discount_percentage (sum of all line percentage), delay_type, value (replace balance with percentage) https://github.com/odoo/odoo/pull/110274/
+
 account      / account.reconcile.model  / message_main_attachment_id (many2one): DEL relation: ir.attachment
 account      / account.reconcile.model  / rating_ids (one2many)         : NEW relation: rating.rating
 account      / account.reconcile.model.line.template / account_id (many2one)         : DEL relation: account.account.template
@@ -177,14 +215,14 @@ account      / account.reconcile.model.template / sequence (integer)            
 account      / account.reconcile.model.template / to_check (boolean)            : DEL
 account      / account.report           / _order                        : _order is now 'sequence, id' ('id')
 account      / account.report           / active (boolean)              : NEW hasdefault: default
-# TODO
+# NOTHING TO DO
 
 account      / account.report           / chart_template (selection)    : NEW selection_keys: function
 account      / account.report           / chart_template_id (many2one)  : DEL relation: account.chart.template
 # DONE: map chart_template_id > chart_template in pre-migration
 
 account      / account.report           / default_opening_date_filter (selection): selection_keys is now '['last_month', 'last_quarter', 'last_tax_period', 'last_year', 'this_month', 'this_quarter', 'this_tax_period', 'this_year', 'today']' ('['last_month', 'last_quarter', 'last_year', 'this_month', 'this_quarter', 'this_year', 'today']')
-# TODO
+# NOTHING TO DO: new feature
 
 account      / account.report           / filter_account_type (boolean) : selection_keys is now '['both', 'disabled', 'payable', 'receivable']' ('False')
 account      / account.report           / filter_account_type (boolean) : type is now 'selection' ('boolean')
@@ -197,28 +235,48 @@ account      / account.report           / section_main_report_ids (many2many): N
 account      / account.report           / section_report_ids (many2many): NEW relation: account.report
 account      / account.report           / sequence (integer)            : NEW
 account      / account.report           / use_sections (boolean)        : NEW hasdefault: compute
-account      / account.report.column    / figure_type (selection)       : selection_keys is now '['boolean', 'date', 'datetime', 'float', 'integer', 'monetary', 'percentage', 'string']' ('['date', 'datetime', 'float', 'integer', 'monetary', 'none', 'percentage']')
-account      / account.report.expression / figure_type (selection)       : selection_keys is now '['boolean', 'date', 'datetime', 'float', 'integer', 'monetary', 'percentage', 'string']' ('['date', 'datetime', 'float', 'integer', 'monetary', 'none', 'percentage']')
 account      / account.report.external.value / text_value (char)             : NEW
 account      / account.report.line      / external_formula (char)       : NEW
 account      / account.report.line      / user_groupby (char)           : NEW
+# NOTHING TO DO: probably need to do in module that add Localization report
+
+account      / account.report.column    / figure_type (selection)       : selection_keys is now '['boolean', 'date', 'datetime', 'float', 'integer', 'monetary', 'percentage', 'string']' ('['date', 'datetime', 'float', 'integer', 'monetary', 'none', 'percentage']')
+account      / account.report.expression / figure_type (selection)       : selection_keys is now '['boolean', 'date', 'datetime', 'float', 'integer', 'monetary', 'percentage', 'string']' ('['date', 'datetime', 'float', 'integer', 'monetary', 'none', 'percentage']')
+# DONE pre-migration: update none -> string
+
 account      / account.tax              / invoice_label (char)          : NEW
+# DONE pre-migration: create jsonb column(because translate=True) and fill value with 'description' field https://github.com/odoo/odoo/pull/113236/commits
+
 account      / account.tax              / message_follower_ids (one2many): NEW relation: mail.followers
 account      / account.tax              / message_ids (one2many)        : NEW relation: mail.message
 account      / account.tax              / rating_ids (one2many)         : NEW relation: rating.rating
+# NOTHING TO DO
+
 account      / account.tax              / real_amount (float)           : DEL
+# NOTHING TO DO
+
 account      / account.tax              / repartition_line_ids (one2many): NEW relation: account.tax.repartition.line
-account      / account.tax              / website_message_ids (one2many): NEW relation: mail.message
+# NOTHING TO DO: https://github.com/odoo/odoo/pull/110016/commits/a4c1f62ebd2710b3810c2d01195d88e4a9f13a9f
+
+account      / account.tax              / website_message_ids (one2many): NEW relation: mail.messag
+# NOTHING TO DO
+
 account      / account.tax.group        / advance_tax_payment_account_id (many2one): NEW relation: account.account
-account      / account.tax.group        / company_id (many2one)         : NEW relation: res.company, required, hasdefault: default
 account      / account.tax.group        / property_advance_tax_payment_account_id (many2one): DEL relation: account.account
 account      / account.tax.group        / property_tax_payable_account_id (many2one): DEL relation: account.account
 account      / account.tax.group        / property_tax_receivable_account_id (many2one): DEL relation: account.account
 account      / account.tax.group        / tax_payable_account_id (many2one): NEW relation: account.account
 account      / account.tax.group        / tax_receivable_account_id (many2one): NEW relation: account.account
+# DONE pre-migration: update value base on ir.property
+
+account      / account.tax.group        / company_id (many2one)         : NEW relation: res.company, required, hasdefault: default
+# DONE pre-migration: create column and fill value base on account.tax
+
 account      / account.tax.repartition.line / _order                        : _order is now 'document_type, repartition_type, sequence, id' ('sequence, repartition_type, id')
 account      / account.tax.repartition.line / company_id (many2one)         : not a function anymore
 account      / account.tax.repartition.line / company_id (many2one)         : now related
+# NOTHING TO DO
+
 account      / account.tax.repartition.line / document_type (selection)     : is now stored
 account      / account.tax.repartition.line / document_type (selection)     : not a function anymore
 account      / account.tax.repartition.line / document_type (selection)     : now required
@@ -226,6 +284,8 @@ account      / account.tax.repartition.line / invoice_tax_id (many2one)     : DE
 account      / account.tax.repartition.line / refund_tax_id (many2one)      : DEL relation: account.tax
 account      / account.tax.repartition.line / tax_id (many2one)             : is now stored
 account      / account.tax.repartition.line / tax_id (many2one)             : not a function anymore
+# DONE : fill document_type and tax_id base on invoice_tax_id and refund_tax_id https://github.com/odoo/odoo/pull/110016/commits/a4c1f62ebd2710b3810c2d01195d88e4a9f13a9f
+
 account      / account.tax.repartition.line.template / account_id (many2one)         : DEL relation: account.account.template
 account      / account.tax.repartition.line.template / factor_percent (float)        : DEL required
 account      / account.tax.repartition.line.template / invoice_tax_id (many2one)     : DEL relation: account.tax.template
@@ -254,9 +314,9 @@ account      / account.tax.template     / tax_exigibility (selection)   : DEL se
 account      / account.tax.template     / tax_group_id (many2one)       : DEL relation: account.tax.group
 account      / account.tax.template     / tax_scope (selection)         : DEL selection_keys: ['consu', 'service']
 account      / account.tax.template     / type_tax_use (selection)      : DEL required, selection_keys: ['none', 'purchase', 'sale']
+# NOTHING TO DO
+
 account      / res.company              / account_dashboard_onboarding_state (selection): DEL selection_keys: ['closed', 'done', 'just_done', 'not_done']
-account      / res.company              / account_discount_expense_allocation_id (many2one): NEW relation: account.account
-account      / res.company              / account_discount_income_allocation_id (many2one): NEW relation: account.account
 account      / res.company              / account_invoice_onboarding_state (selection): DEL selection_keys: ['closed', 'done', 'just_done', 'not_done']
 account      / res.company              / account_onboarding_create_invoice_state_flag (boolean): DEL
 account      / res.company              / account_onboarding_invoice_layout_state (selection): DEL selection_keys: ['done', 'just_done', 'not_done']
@@ -266,29 +326,47 @@ account      / res.company              / account_setup_bill_state (selection): 
 account      / res.company              / account_setup_coa_state (selection): DEL selection_keys: ['done', 'just_done', 'not_done']
 account      / res.company              / account_setup_fy_data_state (selection): DEL selection_keys: ['done', 'just_done', 'not_done']
 account      / res.company              / account_setup_taxes_state (selection): DEL selection_keys: ['done', 'just_done', 'not_done']
-# TODO
+# DONE post-migration: update base on onboarding module
+
+account      / res.company              / account_discount_expense_allocation_id (many2one): NEW relation: account.account
+account      / res.company              / account_discount_income_allocation_id (many2one): NEW relation: account.account
+# NOTHING TO DO: new feature
 
 account      / res.company              / chart_template (selection)    : NEW selection_keys: function
 account      / res.company              / chart_template_id (many2one)  : DEL relation: account.chart.template
 # DONE: map chart_template_id > chart_template in pre-migration
 
 account      / res.company              / display_invoice_amount_total_words (boolean): NEW
+# NOTHING TO DO: new feature
+
 account      / res.company              / early_pay_discount_computation (selection): DEL selection_keys: ['excluded', 'included', 'mixed']
+# DONE pre-migration: Update in all payment terms of every company
+
 account      / res.company              / invoice_is_download (boolean) : NEW hasdefault: default
 account      / res.company              / invoice_is_print (boolean)    : DEL
+# DONE pre-migration: rename field https://github.com/odoo/odoo/pull/119397
+
 account      / res.company              / message_main_attachment_id (many2one): DEL relation: ir.attachment
+# NOTHING TO DO
+
 account      / res.company              / property_stock_account_input_categ_id (many2one): DEL relation: account.account
 account      / res.company              / property_stock_account_output_categ_id (many2one): DEL relation: account.account
 account      / res.company              / property_stock_valuation_account_id (many2one): DEL relation: account.account
+# NOTHING TO DO
+
 account      / res.company              / rating_ids (one2many)         : NEW relation: rating.rating
 account      / res.partner.bank         / activity_user_id (many2one)   : not related anymore
 account      / res.partner.bank         / activity_user_id (many2one)   : now a function
+# NOTHING TO DO
+
 account      / res.partner.bank         / has_iban_warning (boolean)    : NEW isfunction: function, stored
 account      / res.partner.bank         / has_money_transfer_warning (boolean): NEW isfunction: function, stored
+# DONE create column in pre-migration and compute using orm in end-migration
+
 account      / res.partner.bank         / message_main_attachment_id (many2one): DEL relation: ir.attachment
 account      / res.partner.bank         / rating_ids (one2many)         : NEW relation: rating.rating
 account      / res.partner.bank         / related_moves (one2many)      : NEW relation: account.move
-# TODO
+# NOTHING TO DO
 
 ---XML records in module 'account'---
 DEL account.payment.term: account.account_payment_term_2months (noupdate)

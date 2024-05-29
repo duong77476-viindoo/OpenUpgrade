@@ -8,6 +8,19 @@ from odoo import api, models
 
 _logger = logging.getLogger(__name__)
 
+_fields_renames = [
+    (
+        "res.company",
+        "res_company",
+        "invoice_is_print",
+        "invoice_is_download",
+    ),
+]
+
+_columns_copies = {
+    "account_tax": [("description", "invoice_label", "JSONB")],
+}
+
 COA_MAPPING = {
     "l10n_ae.uae_chart_template_standard": "ae",
     "l10n_ar.l10nar_base_chart_template": "ar_base",
@@ -101,6 +114,15 @@ COA_MAPPING = {
     "l10n_za.default_chart_template": "za",
 }
 
+_l10n_generic_coa_tax_group_xmlid = [
+    "l10n_generic_coa.tax_group_15",
+]
+
+_l10n_generic_coa_tax_xmlid = [
+    "l10n_generic_coa.sale_tax_template",
+    "l10n_generic_coa.purchase_tax_template",
+]
+
 
 @api.model_create_multi
 def create(self, vals_list):
@@ -188,11 +210,440 @@ def _map_chart_template_id_to_chart_template(
             )
 
 
+def _generic_coa_rename_xml_id(env):
+    """
+    Since the removal of account.chart.template
+    we need to rename some xml_id like tax or tax.group
+    in order to avoid duplication
+    """
+    env.cr.execute(
+        """SELECT id, name FROM res_company WHERE chart_template = 'generic_coa'"""
+    )
+    xmlids_renames = []
+    for company_id, _ in env.cr.fetchall():
+        if company_id == env.company.id:
+            for tax_group_xmlid in _l10n_generic_coa_tax_group_xmlid:
+                new_xmlid = f"account.{company_id}_" + tax_group_xmlid.split(".")[1]
+                xmlids_renames.append((tax_group_xmlid, new_xmlid))
+        for tax_xmlid in _l10n_generic_coa_tax_xmlid:
+            old_xmlid = f"l10n_generic_coa.{company_id}_" + tax_xmlid.split(".")[1]
+            new_xmlid = f"account.{company_id}_" + tax_xmlid.split(".")[1]
+            xmlids_renames.append((old_xmlid, new_xmlid))
+    openupgrade.rename_xmlids(env.cr, xmlids_renames)
+
+
+def _am_create_delivery_date_column(env):
+    """
+    Create column then in module need them like l10n_de and sale_stock will fill value,
+    https://github.com/odoo/odoo/pull/116643
+    """
+    openupgrade.logged_query(
+        env.cr,
+        """
+        ALTER TABLE account_move
+        ADD COLUMN IF NOT EXISTS delivery_date DATE
+        """,
+    )
+
+
+def _am_create_incoterm_location_column(env):
+    """
+    Create column then in sale_stock, purchase_stock will fill it in pre,
+    pr: https://github.com/odoo/odoo/pull/118954
+    """
+    openupgrade.logged_query(
+        env.cr,
+        """
+        ALTER TABLE account_move
+        ADD COLUMN IF NOT EXISTS incoterm_location CHARACTER VARYING
+        """,
+    )
+
+
+def _aml_update_invoice_date_like_amount_move(env):
+    openupgrade.logged_query(
+        env.cr,
+        """
+        ALTER TABLE account_move_line
+        ADD COLUMN IF NOT EXISTS invoice_date DATE
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_move_line aml
+        SET invoice_date = am.invoice_date
+        FROM account_move am
+        WHERE aml.move_id = am.id
+        """,
+    )
+
+
+def _account_payment_term_migration(env):
+    """
+    https://github.com/odoo/odoo/pull/110274
+    """
+    openupgrade.logged_query(
+        env.cr,
+        """
+        ALTER TABLE account_payment_term
+            ADD COLUMN IF NOT EXISTS discount_days INTEGER,
+            ADD COLUMN IF NOT EXISTS discount_percentage FLOAT,
+            ADD COLUMN IF NOT EXISTS early_discount BOOLEAN,
+            ADD COLUMN IF NOT EXISTS early_pay_discount_computation VARCHAR;
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        ALTER TABLE account_payment_term_line
+            ADD COLUMN IF NOT EXISTS delay_type VARCHAR,
+            ADD COLUMN IF NOT EXISTS nb_days INTEGER;
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_payment_term_line
+        SET value = 'percent',
+            value_amount = 100.0
+        WHERE value = 'balance'
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_payment_term_line
+        SET delay_type = CASE
+                WHEN end_month = true AND months = 1 THEN 'days_after_end_of_next_month'
+                WHEN end_month = true AND months > 1 THEN 'days_end_of_month_on_the'
+                WHEN end_month IN (false, NULL) THEN 'days_after'
+                ELSE 'days_after'
+            END,
+            nb_days = CASE
+                WHEN months IS NOT NULL AND days_after IS NOT NULL AND end_month = true
+                AND months > 1
+                THEN (months*30) + days + days_after
+                WHEN months IS NOT NULL AND days_after IS NOT NULL AND end_month = true
+                AND months = 1
+                THEN  days + days_after
+                WHEN end_month IN (false, NULL) THEN (months*30) + days
+            END
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_payment_term term
+        SET early_pay_discount_computation = com.early_pay_discount_computation
+        FROM res_company com
+        WHERE term.company_id = com.id
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_payment_term term
+            SET early_discount = true
+            WHERE EXISTS (
+                SELECT 1
+                    FROM account_payment_term_line t1
+                    WHERE t1.payment_id = term.id
+                    AND t1.discount_days IS NOT NULL
+                    AND t1.discount_percentage IS NOT NULL
+                    AND t1.discount_percentage > 0.0
+            );
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        WITH tmp as(
+            SELECT payment_id, MAX(discount_days) discount_days,
+            sum(discount_percentage) discount_percentage
+            FROM account_payment_term_line
+            WHERE discount_days IS NOT NULL AND discount_percentage IS NOT NULL
+            AND discount_percentage > 0.0
+            GROUP BY payment_id
+        )
+        UPDATE account_payment_term term
+            SET discount_days = tmp.discount_days,
+                discount_percentage = tmp.discount_percentage
+        FROM tmp
+        WHERE tmp.payment_id = term.id
+        """,
+    )
+
+
+def _force_install_account_payment_term_module_module(env):
+    """
+    Force install account_payment_term because we need
+    key 'days_end_of_month_on_the' of it
+    it has already merged in odoo master
+    """
+    account_payment_term_module = env["ir.module.module"].search(
+        [("name", "=", "account_payment_term")]
+    )
+    if account_payment_term_module:
+        account_payment_term_module.button_install()
+
+
+def _account_report_update_figure_type(env):
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_report_column
+        SET figure_type = 'string'
+        WHERE figure_type = 'none'
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_report_expression
+        SET figure_type = 'string'
+        WHERE figure_type = 'none'
+        """,
+    )
+
+
+def _account_tax_repartition_line_merge_repartition_lines_m2o(env):
+    openupgrade.logged_query(
+        env.cr,
+        """
+        ALTER TABLE account_tax_repartition_line
+            ADD COLUMN IF NOT EXISTS document_type VARCHAR,
+            ADD COLUMN IF NOT EXISTS tax_id INTEGER;
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_tax_repartition_line
+            SET document_type = CASE
+                WHEN invoice_tax_id IS NOT NULL THEN 'invoice'
+                WHEN refund_tax_id IS NOT NULL THEN 'refund'
+            END,
+                tax_id = CASE
+                WHEN invoice_tax_id IS NOT NULL THEN invoice_tax_id
+                WHEN refund_tax_id IS NOT NULL THEN refund_tax_id
+            END
+        """,
+    )
+
+
+def _res_partner_bank_create_column(env):
+    openupgrade.logged_query(
+        env.cr,
+        """
+        ALTER TABLE res_partner_bank
+            ADD COLUMN IF NOT EXISTS has_iban_warning BOOLEAN,
+            ADD COLUMN IF NOT EXISTS has_money_transfer_warning BOOLEAN;
+        """,
+    )
+
+
+def _account_tax_migration(env):
+    """
+    In v17 tax group is company dependent with each company through company_id field
+    So this method have following purpose:
+    -Find which tax group have more than 1 of different company
+    then duplicate it using insert
+    -Update the taxes to new duplicate one as well
+    -Rename ir model data (xml_id), the format will be
+    "{module_name}.{company_id}_xml_id"
+    Example in v16:
+    2 VN CoA company: tax 0, tax 5, tax 10
+    2 Generic CoA company tax 15
+    1 Belgium CoA company tax 6, 12, 21
+    -> After migration we will have 2 tax 0, 2 tax 5, 2 tax 10
+    and 2 tax 15 of course with only different company_id
+    Also the new one will have their own xml_id using create method
+    of ir.model.data
+    And then in each l10n module, only need to perform rename xml_id like
+    https://github.com/Viindoo/OpenUpgrade/pull/655
+    """
+    openupgrade.logged_query(
+        env.cr,
+        """
+        ALTER TABLE account_tax_group
+            ADD COLUMN IF NOT EXISTS company_id INTEGER;
+        """,
+    )
+    env.cr.execute(
+        """
+        SELECT t1.id AS tax_group_id, array_agg(t2.id) taxes, t2.company_id,
+        t3.chart_template
+        FROM account_tax_group t1 JOIN account_tax t2
+        ON t2.tax_group_id = t1.id JOIN res_company t3
+        ON t3.id = t2.company_id
+        GROUP BY t1.id, t2.tax_group_id, t2.company_id, t3.chart_template
+        """
+    )
+    duplicate_tax_groups = []
+    to_create_model_data = []
+    IrModelData = env["ir.model.data"]
+    for tax_group_id, tax_ids, company_id, chart_template in env.cr.fetchall():
+        model_data = IrModelData.search(
+            [("res_id", "=", tax_group_id), ("model", "=", "account.tax.group")]
+        )
+        env.cr.execute(
+            f"SELECT company_id FROM account_tax_group WHERE id = {tax_group_id}"
+        )
+        tax_group_company_id = env.cr.fetchone()[0]
+        if (
+            model_data
+            and tax_group_id not in duplicate_tax_groups
+            and not model_data.name.startswith(f"{tax_group_company_id}_")
+        ):
+            model_data.write({"name": f"{company_id}_{model_data.name}"})
+
+        if tax_group_id in duplicate_tax_groups:
+            env.cr.execute(
+                f"""
+                INSERT INTO account_tax_group (name, sequence, country_id, create_uid,
+                                                write_uid, preceding_subtotal,
+                                                create_date, write_date, company_id)
+                SELECT name, sequence, country_id, create_uid, write_uid,
+                preceding_subtotal, create_date, write_date, {company_id}
+                FROM account_tax_group
+                WHERE id = {tax_group_id}
+                RETURNING id
+                """
+            )
+            new_tax_group_id = env.cr.fetchone()[0]
+            tax_ids_str = ", ".join(map(str, tax_ids))
+            openupgrade.logged_query(
+                env.cr,
+                f"""
+                UPDATE account_tax
+                SET tax_group_id = {new_tax_group_id}
+                WHERE id in ({tax_ids_str})
+                """,
+            )
+            if model_data and new_tax_group_id and tax_group_company_id:
+                name = model_data.name.replace(f"{tax_group_company_id}_", "")
+                to_create_model_data.append(
+                    {
+                        "name": f"{company_id}_{name}",
+                        "res_id": new_tax_group_id,
+                        "noupdate": model_data.noupdate,
+                        "model": "account.tax.group",
+                        # special case for generic coa
+                        # other will be handle at the own module migration
+                        # because in pre we have rename 1 tax group
+                        # if there are still other then handle here
+                        "module": model_data.module
+                        if chart_template != "generic_coa"
+                        else "account",
+                    }
+                )
+        else:
+            openupgrade.logged_query(
+                env.cr,
+                f"""
+                UPDATE account_tax_group
+                SET company_id = {company_id}
+                WHERE id = {tax_group_id}
+                """,
+            )
+
+        duplicate_tax_groups.append(tax_group_id)
+
+    if to_create_model_data:
+        IrModelData.create(to_create_model_data)
+
+
+def _account_tax_group_update_from_property(env):
+    openupgrade.logged_query(
+        env.cr,
+        """
+        ALTER TABLE account_tax_group
+            ADD COLUMN IF NOT EXISTS advance_tax_payment_account_id INTEGER,
+            ADD COLUMN IF NOT EXISTS tax_payable_account_id INTEGER,
+            ADD COLUMN IF NOT EXISTS tax_receivable_account_id INTEGER;
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_tax_group atg
+        SET tax_receivable_account_id =
+        COALESCE(
+            (
+                SELECT CAST(SPLIT_PART(ip.value_reference, ',', 2) AS int)
+                FROM ir_property ip
+                WHERE name = 'property_tax_receivable_account_id' AND
+                res_id = CONCAT('account.tax.group,', atg.id) AND
+                company_id = atg.company_id
+            ),
+            (
+                SELECT CAST(SPLIT_PART(ip.value_reference, ',', 2) AS int)
+                FROM ir_property ip
+                WHERE name = 'property_tax_receivable_account_id' AND
+                (res_id IS NULL OR res_id = '') AND
+                company_id = atg.company_id
+            ),
+            NULL
+        )
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_tax_group atg
+        SET tax_payable_account_id =
+        COALESCE(
+            (
+                SELECT CAST(SPLIT_PART(ip.value_reference, ',', 2) AS int)
+                FROM ir_property ip
+                WHERE name = 'property_tax_payable_account_id' AND
+                res_id = CONCAT('account.tax.group,', atg.id) AND
+                company_id = atg.company_id
+            ),
+            (
+                SELECT CAST(SPLIT_PART(ip.value_reference, ',', 2) AS int)
+                FROM ir_property ip
+                WHERE name = 'property_tax_payable_account_id' AND
+                (res_id IS NULL OR res_id = '') AND
+                company_id = atg.company_id
+            ),
+            NULL
+        )
+        """,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE account_tax_group atg
+        SET advance_tax_payment_account_id =
+        COALESCE(
+            (
+                SELECT CAST(SPLIT_PART(ip.value_reference, ',', 2) AS int)
+                FROM ir_property ip
+                WHERE name = 'property_advance_tax_payment_account_id' AND
+                res_id = CONCAT('account.tax.group,', atg.id) AND
+                company_id = atg.company_id
+            ),
+            (
+                SELECT CAST(SPLIT_PART(ip.value_reference, ',', 2) AS int)
+                FROM ir_property ip
+                WHERE name = 'property_advance_tax_payment_account_id' AND
+                (res_id IS NULL OR res_id = '') AND
+                company_id = atg.company_id
+            ),
+            NULL
+        )
+        """,
+    )
+
+
 @openupgrade.migrate()
 def migrate(env, version):
     _map_account_report_filter_account_type(env)
     _map_chart_template_id_to_chart_template(env, "res_company")
     _map_chart_template_id_to_chart_template(env, "account_report")
+    _generic_coa_rename_xml_id(env)
     # Drop triagram index on name column of account.account
     # to avoid error when loading registry, it will be recreated
     openupgrade.logged_query(
@@ -201,3 +652,15 @@ def migrate(env, version):
         DROP INDEX IF EXISTS account_account_name_index;
         """,
     )
+    openupgrade.rename_fields(env, _fields_renames)
+    openupgrade.copy_columns(env.cr, _columns_copies)
+    _am_create_delivery_date_column(env)
+    _am_create_incoterm_location_column(env)
+    _aml_update_invoice_date_like_amount_move(env)
+    _force_install_account_payment_term_module_module(env)
+    _account_payment_term_migration(env)
+    _account_report_update_figure_type(env)
+    _account_tax_repartition_line_merge_repartition_lines_m2o(env)
+    _res_partner_bank_create_column(env)
+    _account_tax_migration(env)
+    _account_tax_group_update_from_property(env)
