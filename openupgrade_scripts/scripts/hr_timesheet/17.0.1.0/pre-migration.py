@@ -8,7 +8,7 @@ def migrate(env, version):
         [
             (
                 "account.analytic.line",
-                "account.analytic.line",
+                "account_analytic_line",
                 "ancestor_task_id",
                 "parent_task_id",
             )
