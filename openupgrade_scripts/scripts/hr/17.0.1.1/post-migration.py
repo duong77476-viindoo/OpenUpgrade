@@ -14,7 +14,6 @@ _deleted_xml_records = [
     "hr.openupgrade_legacy_17_0_onboarding_training",
     "hr.hr_plan_activity_type_company_rule",
     "hr.hr_plan_company_rule",
-    "hr.res_partner_admin_private_address",
 ]
 
 
