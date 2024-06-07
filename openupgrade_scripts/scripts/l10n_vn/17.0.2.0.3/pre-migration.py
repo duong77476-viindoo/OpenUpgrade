@@ -24,11 +24,10 @@ def _vn_coa_rename_xml_id(env):
     we need to rename some xml_id like tax or tax.group
     in order to avoid duplication
     """
-    env.cr.execute(
-        """SELECT array_agg(id) FROM res_company WHERE chart_template = 'vn'"""
-    )
+    env.cr.execute("""SELECT id FROM res_company WHERE chart_template = 'vn'""")
     xmlids_renames = []
-    for company_id in env.cr.fetchall():
+    company_ids = [r[0] for r in env.cr.fetchall()]
+    for company_id in company_ids:
         for tax_group_xmlid in _account_tax_group_xmlid:
             old_xmlid = f"l10n_vn.{company_id}_" + tax_group_xmlid.split(".")[1]
             new_xmlid = f"account.{company_id}_" + tax_group_xmlid.split(".")[1]
