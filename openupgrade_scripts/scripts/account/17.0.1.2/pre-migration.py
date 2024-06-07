@@ -470,88 +470,60 @@ def _account_tax_migration(env):
             ADD COLUMN IF NOT EXISTS company_id INTEGER;
         """,
     )
+
     env.cr.execute(
         """
-        SELECT t1.id AS tax_group_id, array_agg(t2.id) taxes, t2.company_id,
-        t3.chart_template
-        FROM account_tax_group t1 JOIN account_tax t2
-        ON t2.tax_group_id = t1.id JOIN res_company t3
-        ON t3.id = t2.company_id
-        GROUP BY t1.id, t2.tax_group_id, t2.company_id, t3.chart_template
+        SELECT
+            string_agg(column_name, ',')
+        FROM
+            information_schema.columns
+        WHERE
+            table_name = 'account_tax_group'
+            AND column_name != 'id'
+            AND column_name != 'company_id'
         """
     )
-    duplicate_tax_groups = []
-    to_create_model_data = []
-    IrModelData = env["ir.model.data"]
-    for tax_group_id, tax_ids, company_id, chart_template in env.cr.fetchall():
-        model_data = IrModelData.search(
+    account_tax_group_columns = env.cr.fetchone()[0]
+
+    env.cr.execute(
+        """
+        SELECT tax_group_id, array_agg(DISTINCT(company_id))
+            FROM account_tax
+        GROUP BY tax_group_id
+        """
+    )
+
+    for tax_group_id, company_ids in env.cr.fetchall():
+        first_company_id = company_ids[:1]
+
+        imd = env["ir.model.data"].search(
             [("res_id", "=", tax_group_id), ("model", "=", "account.tax.group")]
         )
-        env.cr.execute(
-            f"SELECT company_id FROM account_tax_group WHERE id = {tax_group_id}"
-        )
-        tax_group_company_id = env.cr.fetchone()[0]
-        if (
-            model_data
-            and tax_group_id not in duplicate_tax_groups
-            and not model_data.name.startswith(f"{tax_group_company_id}_")
-        ):
-            model_data.write({"name": f"{company_id}_{model_data.name}"})
+        imd.write({"name": f"{first_company_id}_{imd.name}"})
 
-        if tax_group_id in duplicate_tax_groups:
+        for company_id in company_ids[1:]:
             env.cr.execute(
                 f"""
-                INSERT INTO account_tax_group (name, sequence, country_id, create_uid,
-                                                write_uid, preceding_subtotal,
-                                                create_date, write_date, company_id)
-                SELECT name, sequence, country_id, create_uid, write_uid,
-                preceding_subtotal, create_date, write_date, {company_id}
+                INSERT INTO account_tax_group ({account_tax_group_columns}, company_id)
+                SELECT {account_tax_group_columns}, {company_id}
                 FROM account_tax_group
                 WHERE id = {tax_group_id}
                 RETURNING id
                 """
             )
+
             new_tax_group_id = env.cr.fetchone()[0]
-            tax_ids_str = ", ".join(map(str, tax_ids))
+            vals = {"res_id": new_tax_group_id, "name": f"{company_id}_{imd.name}"}
+            imd.copy(default=vals)
+
             openupgrade.logged_query(
                 env.cr,
                 f"""
                 UPDATE account_tax
                 SET tax_group_id = {new_tax_group_id}
-                WHERE id in ({tax_ids_str})
+                WHERE tax_group_id = {tax_group_id} AND company_id = {company_id}
                 """,
             )
-            if model_data and new_tax_group_id and tax_group_company_id:
-                name = model_data.name.replace(f"{tax_group_company_id}_", "")
-                to_create_model_data.append(
-                    {
-                        "name": f"{company_id}_{name}",
-                        "res_id": new_tax_group_id,
-                        "noupdate": model_data.noupdate,
-                        "model": "account.tax.group",
-                        # special case for generic coa
-                        # other will be handle at the own module migration
-                        # because in pre we have rename 1 tax group
-                        # if there are still other then handle here
-                        "module": model_data.module
-                        if chart_template != "generic_coa"
-                        else "account",
-                    }
-                )
-        else:
-            openupgrade.logged_query(
-                env.cr,
-                f"""
-                UPDATE account_tax_group
-                SET company_id = {company_id}
-                WHERE id = {tax_group_id}
-                """,
-            )
-
-        duplicate_tax_groups.append(tax_group_id)
-
-    if to_create_model_data:
-        IrModelData.create(to_create_model_data)
 
 
 def _account_tax_group_update_from_property(env):
