@@ -507,6 +507,7 @@ def _account_tax_migration(env):
         imd = env["ir.model.data"].search(
             [("res_id", "=", tax_group_id), ("model", "=", "account.tax.group")]
         )
+        tax_group_name = imd.name
         imd.write({"name": f"{first_company_id}_{imd.name}"})
 
         for company_id in company_ids[1:]:
@@ -521,11 +522,10 @@ def _account_tax_migration(env):
             )
 
             new_tax_group_id = env.cr.fetchone()[0]
-            name = imd.name.replace(f"{first_company_id}_", "")
             env["ir.model.data"].create(
                 {
                     "res_id": new_tax_group_id,
-                    "name": f"{company_id}_{name}",
+                    "name": f"{company_id}_{tax_group_name}",
                     "noupdate": imd.noupdate,
                     "model": "account.tax.group",
                     "module": imd.module,
