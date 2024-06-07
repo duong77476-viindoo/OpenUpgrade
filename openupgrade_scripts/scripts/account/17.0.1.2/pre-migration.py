@@ -522,15 +522,7 @@ def _account_tax_migration(env):
             )
 
             new_tax_group_id = env.cr.fetchone()[0]
-            env["ir.model.data"].create(
-                {
-                    "res_id": new_tax_group_id,
-                    "name": f"{company_id}_{tax_group_name}",
-                    "noupdate": imd.noupdate,
-                    "model": "account.tax.group",
-                    "module": imd.module,
-                }
-            )
+            imd.copy(default={"res_id": new_tax_group_id}).name = f"{company_id}_{tax_group_name}"
 
             openupgrade.logged_query(
                 env.cr,
