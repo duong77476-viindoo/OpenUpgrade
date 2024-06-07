@@ -522,7 +522,8 @@ def _account_tax_migration(env):
             )
 
             new_tax_group_id = env.cr.fetchone()[0]
-            imd.copy(default={"res_id": new_tax_group_id}).name = f"{company_id}_{tax_group_name}"
+            new_imp = imd.copy(default={"res_id": new_tax_group_id})
+            new_imp.write({"name": f"{company_id}_{tax_group_name}"})
 
             openupgrade.logged_query(
                 env.cr,
