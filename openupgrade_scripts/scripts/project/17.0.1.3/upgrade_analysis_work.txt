@@ -114,6 +114,8 @@ project      / project.task.recurrence  / wed (boolean)                 : DEL
 
 project      / project.task.type        / auto_validation_kanban_state (boolean): DEL
 project      / project.task.type        / auto_validation_state (boolean): NEW hasdefault: default
+# DONE pre-migration: rename field
+
 project      / project.task.type        / legend_blocked (char)         : DEL required
 project      / project.task.type        / legend_done (char)            : DEL required
 project      / project.task.type        / legend_normal (char)          : DEL required

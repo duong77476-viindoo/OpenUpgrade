@@ -14,6 +14,12 @@ def _rename_fields(env):
                 "planned_hours",
                 "allocated_hours",
             ),
+            (
+                "project.task.type",
+                "project_task_type",
+                "auto_validation_kanban_state",
+                "auto_validation_state",
+            ),
         ],
     )
 
