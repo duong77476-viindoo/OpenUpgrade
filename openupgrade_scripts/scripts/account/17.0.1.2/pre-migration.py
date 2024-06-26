@@ -1,6 +1,7 @@
 # Copyright 2024 Viindoo Technology Joint Stock Company (Viindoo)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from openupgradelib import openupgrade
+from odoo.tools.sql import convert_column_translatable
 
 from odoo.tools.sql import convert_column_translatable
 
