@@ -29,6 +29,8 @@ renamed_modules = {
     "crm_project": "crm_lead_to_task",
     # OCA/knowledge
     "knowledge": "document_knowledge",
+    # OCA/project
+    "project_stage_mgmt": "project_task_stage_mgmt",
     # OCA/sale-promotion
     "coupon_incompatibility": "loyalty_incompatibility",
     "coupon_limit": "loyalty_limit",
@@ -114,8 +116,11 @@ merged_modules = {
     # OCA/e-commerce
     "website_sale_require_login": "website_sale",
     # OCA/pos
+    "pos_margin_account_invoice_margin": "point_of_sale",
     "pos_order_line_no_unlink": "point_of_sale",
     "pos_product_sort": "point_of_sale",
+    # OCA/product-variant
+    "purchase_variant_configurator_on_confirm": "purchase_variant_configurator",
     # OCA/project
     "project_task_milestone": "project",
     # OCA/purchase-workflow

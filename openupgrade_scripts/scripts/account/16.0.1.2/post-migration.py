@@ -62,3 +62,8 @@ def migrate(env, version):
         (tuple(_modules_to_install),),
     )
     _compute_remaining_account_payment_amount_company_currency_signed(env)
+    # credit_limit converted to company dependent
+    old_column = openupgrade.get_legacy_name("credit_limit")
+    openupgrade.convert_to_company_dependent(
+        env, "res.partner", old_column, "credit_limit"
+    )
