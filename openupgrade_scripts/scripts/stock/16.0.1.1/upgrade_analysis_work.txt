@@ -194,6 +194,8 @@ NEW ir.model.access: stock.access_stock_lot_user
 NEW ir.model.access: stock.access_stock_picking_label_type_user
 NEW ir.model.access: stock.access_stock_replenish_option
 DEL ir.model.access: stock.access_stock_production_lot_user
+# DONE: pre-migration: renamed to stock.access_stock_lot_user via rename_xmlids
+
 NEW ir.ui.menu: stock.menu_product_stock
 DEL ir.ui.menu: stock.menu_forecast_inventory
 DEL ir.ui.menu: stock.menu_storage_categoty_capacity_config
@@ -211,4 +213,4 @@ NEW res.groups: stock.group_stock_lot_print_gs1
 DEL res.groups: stock.group_auto_reception_report
 DEL stock.location.route: stock.route_warehouse0_mto (noupdate)
 NEW stock.route: stock.route_warehouse0_mto (noupdate)
-# NOTHINGH TO DO
+# NOTHING TO DO

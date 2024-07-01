@@ -46,3 +46,8 @@ def fill_skill_type_id_data(env):
 @openupgrade.migrate()
 def migrate(env, version):
     fill_skill_type_id_data(env)
+    # Create fake table for not triggering the compute method
+    env.cr.execute(
+        """CREATE TABLE hr_employee_hr_skill_rel
+        (hr_employee_id integer, hr_skill_id integer)"""
+    )

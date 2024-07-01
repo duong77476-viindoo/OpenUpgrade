@@ -16,14 +16,40 @@ renamed_modules = {
     "helpdesk_sale_coupon": "helpdesk_sale_loyalty",
     "sale_coupon_taxcloud": "sale_loyalty_taxcloud",
     "sale_coupon_taxcloud_delivery": "sale_loyalty_taxcloud_delivery",
+    # OCA/account-reconcile
+    "account_reconciliation_widget": "account_reconcile_oca",
     # OCA/bank-statement-import
+    "account_bank_statement_import_qif": "account_statement_import_qif",
     "account_statement_import": "account_statement_import_file",
+    "account_statement_import_file_reconciliation_widget": (
+        "account_statement_import_file_reconcile_oca"
+    ),
+    "account_statement_import_txt_xlsx": "account_statement_import_sheet_file",
+    # OCA/crm
+    "crm_project": "crm_lead_to_task",
     # OCA/knowledge
     "knowledge": "document_knowledge",
+    # OCA/project
+    "project_stage_mgmt": "project_task_stage_mgmt",
     # OCA/sale-promotion
+    "coupon_incompatibility": "loyalty_incompatibility",
+    "coupon_limit": "loyalty_limit",
+    "coupon_mass_mailing": "loyalty_mass_mailing",
+    "coupon_multi_gift": "loyalty_multi_gift",
+    "coupon_criteria_multi_product": "loyalty_criteria_multi_product",
+    "sale_coupon_criteria_multi_product": "sale_loyalty_criteria_multi_product",
+    "sale_coupon_incompatibility": "sale_loyalty_incompatibility",
+    "sale_coupon_limit": "sale_loyalty_limit",
+    "sale_coupon_multi_gift": "sale_loyalty_multi_gift",
+    "sale_coupon_order_line_link": "sale_loyalty_order_line_link",
+    "sale_coupon_order_suggestion": "sale_loyalty_order_suggestion",
+    "sale_coupon_partner": "sale_loyalty_partner",
     "website_sale_coupon_page": "website_sale_loyalty_page",
+    "website_sale_coupon_selection_wizard": "website_sale_loyalty_suggestion_wizard",
     # OCA/server-ux
     "mass_editing": "server_action_mass_edit",
+    # OCA/l10n-italy
+    "l10n_it_ricevute_bancarie": "l10n_it_riba",
     # OCA/...
     # Viindoo/tvtmaaddons
     "to_affiliate": "viin_affiliate",
@@ -83,16 +109,35 @@ merged_modules = {
     # OCA/account-financial-tools
     "account_balance_line": "account",
     "account_move_force_removal": "account",
+    # OCA/account-invoicing
+    "account_invoice_search_by_reference": "account",
     # OCA/account-invoice-reporting
     "account_invoice_report_due_list": "account",
     # OCA/e-commerce
     "website_sale_require_login": "website_sale",
+    # OCA/pos
+    "pos_margin_account_invoice_margin": "point_of_sale",
+    "pos_order_line_no_unlink": "point_of_sale",
+    "pos_product_sort": "point_of_sale",
+    # OCA/product-variant
+    "purchase_variant_configurator_on_confirm": "purchase_variant_configurator",
+    # OCA/project
+    "project_task_milestone": "project",
     # OCA/purchase-workflow
     "product_form_purchase_link": "purchase",
+    # OCA/sale-promotion
+    "coupon_commercial_partner_applicability": "loyalty_partner_applicability",
+    "sale_coupon_selection_wizard": "sale_loyalty_order_suggestion",
+    # OCA/sale-workflow
+    "sale_product_set_layout": "sale_product_set",
+    # OCA/social
+    "mail_preview_audio": "mail",
+    "mail_preview_base": "mail",
     # OCA/stock-logistics-workflow
     "stock_picking_backorder_strategy": "stock",
     # OCA/web
     "web_drop_target": "web",
+    "web_ir_actions_act_view_reload": "web",
     # Viindoo/tvtmaaddons
     "payment_zalo_atm": "payment_zalopay",
     "payment_zalo_international_card": "payment_zalopay",

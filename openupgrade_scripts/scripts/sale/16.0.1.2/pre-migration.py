@@ -41,6 +41,7 @@ def _drop_sql_views(env):
         DROP VIEW IF EXISTS report_all_channels_sales
         """,
     )
+    openupgrade.logged_query(env.cr, "DROP VIEW IF EXISTS sale_report CASCADE")
 
 
 def _fast_fill_analytic_distribution_on_sale_order_line(env):

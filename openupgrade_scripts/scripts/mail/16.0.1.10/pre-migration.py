@@ -37,6 +37,27 @@ _columns_copies = {
 }
 
 
+def _avoid_mail_notification_new_constraint(env):
+    """Prior to Odoo 16, there is no unique constraint on the mail_notification table,
+    so if there's any duplicate, the upgrade will fail.
+
+    Let's preventively delete the duplicated entries, as at the end, they are not
+    needed.
+    """
+    openupgrade.logged_query(
+        env.cr,
+        """DELETE FROM mail_notification
+        WHERE id IN (
+            SELECT id FROM (
+                SELECT id, row_number()
+                OVER (
+                    partition BY res_partner_id, mail_message_id ORDER BY id
+                ) AS rnum FROM mail_notification
+            ) t WHERE t.rnum > 1
+        )""",
+    )
+
+
 def delete_obsolete_constraints(env):
     openupgrade.delete_sql_constraint_safely(
         env, "mail", "mail_channel_partner", "partner_or_guest_exists"
@@ -71,6 +92,47 @@ def mail_channel_channel_type_required(env):
         UPDATE mail_channel
         SET channel_type='channel'
         WHERE channel_type IS NULL;
+        """,
+    )
+
+
+def mail_channel_unset_wrong_group_public_id(env):
+    """
+    - On 15.0, group_public_id was set to 'base.group_user' by default for all records.
+    ```
+    group_public_id = fields.Many2one(
+        'res.groups',
+        string='Authorized Group',
+        default=lambda self: self.env.ref('base.group_user')
+    )
+    ```
+    - On 16.0, group_public_id become a computed field, and a sql constraint was added
+    to check group_public_id need to be NULL if channel_type is not 'channel'.
+    ```
+    group_public_id = fields.Many2one(
+        'res.groups',
+        string='Authorized Group',
+        compute='_compute_group_public_id',
+        readonly=False,
+        store=True
+    )
+    _sql_constraints = [
+        (
+        'group_public_id_check',
+        "CHECK (channel_type = 'channel' OR group_public_id IS NULL)",
+        'Group authorization and group auto-subscription are only supported on channels.'
+        )
+    ]
+    ```
+    - So that constraint will fail on 16.0 if group_public_id is still set to
+    'base.group_user'.
+    """
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE mail_channel
+        SET group_public_id = NULL
+        WHERE channel_type != 'channel';
         """,
     )
 
@@ -170,6 +232,7 @@ def _correct_res_users_notification_type(env):
 @openupgrade.migrate()
 def migrate(env, version):
     _update_mail_channel_name(env)
+    _avoid_mail_notification_new_constraint(env)
     delete_obsolete_constraints(env)
     openupgrade.rename_fields(env, _fields_renames)
     openupgrade.rename_models(env.cr, _models_renames)

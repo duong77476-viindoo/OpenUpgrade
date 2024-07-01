@@ -2,14 +2,17 @@ from openupgradelib import openupgrade
 
 
 def fetchmail_server_set_gmail_server_type(env):
-    openupgrade.logged_query(
-        env.cr,
-        """
-        UPDATE fetchmail_server
-        SET server_type='gmail'
-        WHERE use_google_gmail_service = true;
-        """,
-    )
+    if openupgrade.column_exists(
+        env.cr, "fetchmail_server", "use_google_gmail_service"
+    ):
+        openupgrade.logged_query(
+            env.cr,
+            """
+            UPDATE fetchmail_server
+            SET server_type='gmail'
+            WHERE use_google_gmail_service = true;
+            """,
+        )
 
 
 def ir_mail_server_set_gmail_smtp_authentication(env):

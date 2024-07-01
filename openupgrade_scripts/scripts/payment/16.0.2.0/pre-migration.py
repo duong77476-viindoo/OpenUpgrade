@@ -12,58 +12,6 @@ _table_renames = [
     ("payment_acquirer_payment_icon_rel", "payment_provider_payment_icon_rel"),
 ]
 
-_field_moves = [
-    {
-        "model": "account.bank.statement.line",
-        "moved_fields": [
-            "amount_paid",
-            "authorized_transaction_ids",
-            "transaction_ids",
-            "payment_acquirer_id",
-            "payment_acquirer_state",
-        ],
-        "old_module": "payment",
-        "new_module": "account_payment",
-    },
-    {
-        "model": "account.move",
-        "moved_fields": [
-            "amount_paid",
-            "authorized_transaction_ids",
-            "transaction_ids",
-        ],
-        "old_module": "payment",
-        "new_module": "account_payment",
-    },
-    {
-        "model": "account.payment",
-        "moved_fields": [
-            "amount_available_for_refund",
-            "amount_paid",
-            "authorized_transaction_ids",
-            "payment_token_id",
-            "payment_transaction_id",
-            "refunds_count",
-            "source_payment_id",
-            "suitable_payment_token_ids",
-            "transaction_ids",
-            "use_electronic_payment_method",
-        ],
-        "old_module": "payment",
-        "new_module": "account_payment",
-    },
-    {
-        "model": "payment.transaction",
-        "moved_fields": [
-            "invoice_ids",
-            "invoices_count",
-            "payment_id",
-        ],
-        "old_module": "payment",
-        "new_module": "account_payment",
-    },
-]
-
 _field_renames = [
     (
         "account.payment.method.line",
@@ -120,6 +68,10 @@ _field_renames = [
         "payment_provider_onboarding_state",
     ),
 ]
+
+_columns_copies = {
+    "payment_provider": [("provider", "code", "varchar")],
+}
 
 _xmlid_renames = [
     (
@@ -219,10 +171,6 @@ _xmlid_renames = [
         "payment.payment_provider_adyen",
     ),
     (
-        "payment.payment_acquirer_alipay",
-        "payment.payment_provider_alipay",
-    ),
-    (
         "payment.payment_acquirer_authorize",
         "payment.payment_provider_authorize",
     ),
@@ -235,20 +183,8 @@ _xmlid_renames = [
         "payment.payment_provider_mollie",
     ),
     (
-        "payment.payment_acquirer_ogone",
-        "payment.payment_provider_ogone",
-    ),
-    (
         "payment.payment_acquirer_paypal",
         "payment.payment_provider_paypal",
-    ),
-    (
-        "payment.payment_acquirer_payulatam",
-        "payment.payment_provider_payulatam",
-    ),
-    (
-        "payment.payment_acquirer_payumoney",
-        "payment.payment_provider_payumoney",
     ),
     (
         "payment.payment_acquirer_sepa_direct_debit",
@@ -273,11 +209,28 @@ _xmlid_renames = [
 ]
 
 
+def _module_account_payment_to_install(env):
+    """
+    This function force installation of account_payment in case it is not yet installed
+    In v16, account_payment is auto_install = ["account"] (it was not in v15)
+    Since migration of payment module moves fields to account_payment, if the latter
+    is not installed you will get a JS error when trying to access account moves
+    """
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE ir_module_module
+        SET state = 'to install'
+        WHERE name = 'account_payment' AND state = 'uninstalled'
+        """,
+    )
+
+
 @openupgrade.migrate()
 def migrate(env, version):
     openupgrade.rename_models(env.cr, _model_renames)
     openupgrade.rename_tables(env.cr, _table_renames)
-    for field_move_args in _field_moves:
-        openupgrade.update_module_moved_fields(env.cr, **field_move_args)
     openupgrade.rename_fields(env, _field_renames)
+    openupgrade.copy_columns(env.cr, _columns_copies)
     openupgrade.rename_xmlids(env.cr, _xmlid_renames)
+    _module_account_payment_to_install(env)

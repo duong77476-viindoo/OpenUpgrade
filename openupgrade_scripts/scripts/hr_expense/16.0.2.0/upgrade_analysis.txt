@@ -14,6 +14,9 @@ hr_expense   / hr.expense               / analytic_tag_ids (many2many)  : DEL re
 hr_expense   / hr.expense               / name (char)                   : not a function anymore
 hr_expense   / hr.expense               / total_amount (float)          : now a function
 hr_expense   / hr.expense               / unit_amount (float)           : not a function anymore
+hr_expense   / hr.expense.sheet         / accounting_date (date)        : now a function
+hr_expense   / hr.expense.sheet         / amount_residual (float)       : not a function anymore
+hr_expense   / hr.expense.sheet         / amount_residual (float)       : now related
 hr_expense   / hr.expense.sheet         / currency_id (many2one)        : now a function
 hr_expense   / hr.expense.sheet         / payment_state (selection)     : selection_keys is now 'function' ('['in_payment', 'invoicing_legacy', 'not_paid', 'paid', 'partial', 'reversed']')
 hr_expense   / hr.expense.sheet         / total_amount_taxes (float)    : NEW isfunction: function, stored

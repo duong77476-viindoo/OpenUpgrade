@@ -31,7 +31,20 @@ def _m2m_to_o2m_plan_activity_type_ids(env):
                 hr_plan_activity_type_copy.plan_id = hr_plan
 
 
+def fill_master_department_id(cr):
+    """Fill master_department_id based on parent_path"""
+    openupgrade.logged_query(
+        cr,
+        """
+        UPDATE hr_department
+        SET master_department_id = split_part(parent_path, '/', 1)::int
+        WHERE parent_path is not NULL;
+        """,
+    )
+
+
 @openupgrade.migrate()
 def migrate(env, version):
     openupgrade.load_data(env.cr, "hr", "16.0.1.1/noupdate_changes.xml")
     _m2m_to_o2m_plan_activity_type_ids(env)
+    fill_master_department_id(env.cr)

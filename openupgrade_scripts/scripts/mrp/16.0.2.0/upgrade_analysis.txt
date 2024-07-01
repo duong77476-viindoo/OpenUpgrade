@@ -5,7 +5,7 @@ new model mrp.production.split.multi [transient]
 new model mrp.workcenter.capacity
 ---Fields in module 'mrp'---
 mrp          / mrp.bom                  / allow_operation_dependencies (boolean): NEW
-mrp          / mrp.bom.line             / manual_consumption (boolean)  : NEW isfunction: function, stored
+mrp          / mrp.bom.line             / manual_consumption (boolean)  : NEW hasdefault: default
 mrp          / mrp.production           / allow_workorder_dependencies (boolean): NEW
 mrp          / mrp.production           / date_planned_finished (datetime): now a function
 mrp          / mrp.production           / lot_producing_id (many2one)   : relation is now 'stock.lot' ('stock.production.lot') [nothing to do]

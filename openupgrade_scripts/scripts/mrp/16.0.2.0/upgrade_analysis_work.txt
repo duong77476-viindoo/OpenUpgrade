@@ -2,37 +2,66 @@
 new model mrp.production.split [transient]
 new model mrp.production.split.line [transient]
 new model mrp.production.split.multi [transient]
-new model mrp.workcenter.capacity
+# NOTHING TO DO: Transient models
+
 ---Fields in module 'mrp'---
 mrp          / mrp.bom                  / allow_operation_dependencies (boolean): NEW
-mrp          / mrp.bom.line             / manual_consumption (boolean)  : NEW isfunction: function, stored
 mrp          / mrp.production           / allow_workorder_dependencies (boolean): NEW
-mrp          / mrp.production           / date_planned_finished (datetime): now a function
-mrp          / mrp.production           / lot_producing_id (many2one)   : relation is now 'stock.lot' ('stock.production.lot') [nothing to do]
-mrp          / mrp.production           / product_id (many2one)         : now a function
-mrp          / mrp.production           / unbuild_ids (one2many)        : NEW relation: mrp.unbuild
 mrp          / mrp.routing.workcenter   / blocked_by_operation_ids (many2many): NEW relation: mrp.routing.workcenter
 mrp          / mrp.routing.workcenter   / needed_by_operation_ids (many2many): NEW relation: mrp.routing.workcenter
+NEW res.groups: mrp.group_mrp_workorder_dependencies
+# NOTHING TO DO: Default value False + empty records act like previous v15, and the new feature of workorder dependencies can be activated with the group.
+
+mrp          / mrp.bom.line             / manual_consumption (boolean)  : NEW hasdefault: default
+# NOTHING TO DO: The default value False preserves v15 behavior of computing automatically the consumed raw materials without specifically indicating them.
+
+mrp          / mrp.production           / date_planned_finished (datetime): now a function
+mrp          / mrp.production           / product_id (many2one)         : now a function
+# NOTHING TO DO: Fields are now computed writable
+
+mrp          / mrp.production           / lot_producing_id (many2one)   : relation is now 'stock.lot' ('stock.production.lot') [nothing to do]
 mrp          / mrp.unbuild              / lot_id (many2one)             : relation is now 'stock.lot' ('stock.production.lot') [nothing to do]
+mrp          / mrp.workorder            / finished_lot_id (many2one)    : relation is now 'stock.lot' ('stock.production.lot') [nothing to do]
+mrp          / stock.warehouse          / pbm_route_id (many2one)       : relation is now 'stock.route' ('stock.location.route') [nothing to do]
+# NOTHING TO DO: Underlying renaming already handled in stock
+
+mrp          / mrp.production           / unbuild_ids (one2many)        : NEW relation: mrp.unbuild
+# NOTHING TO DO: o2m for the inverse m2o mo_id existing in v15
+
+mrp          / mrp.workorder            / blocked_by_workorder_ids (many2many): NEW relation: mrp.workorder
+mrp          / mrp.workorder            / needed_by_workorder_ids (many2many): NEW relation: mrp.workorder
+mrp          / mrp.workorder            / next_work_order_id (many2one) : DEL relation: mrp.workorder
+# DONE: post-migration: Add m2m records (both m2m are the same with the columns reversed) following the field `next_work_order_id`
+
 mrp          / mrp.workcenter           / capacity (float)              : DEL
-mrp          / mrp.workcenter           / capacity_ids (one2many)       : NEW relation: mrp.workcenter.capacity
 mrp          / mrp.workcenter           / default_capacity (float)      : NEW hasdefault: default
+# DONE: pre-migration: Renamed
+
+mrp          / mrp.workcenter           / capacity_ids (one2many)       : NEW relation: mrp.workcenter.capacity
+new model mrp.workcenter.capacity
 mrp          / mrp.workcenter.capacity  / capacity (float)              : NEW hasdefault: default
 mrp          / mrp.workcenter.capacity  / product_id (many2one)         : NEW relation: product.product, required
 mrp          / mrp.workcenter.capacity  / time_start (float)            : NEW
 mrp          / mrp.workcenter.capacity  / time_stop (float)             : NEW
 mrp          / mrp.workcenter.capacity  / workcenter_id (many2one)      : NEW relation: mrp.workcenter, required
-mrp          / mrp.workorder            / blocked_by_workorder_ids (many2many): NEW relation: mrp.workorder
-mrp          / mrp.workorder            / finished_lot_id (many2one)    : relation is now 'stock.lot' ('stock.production.lot') [nothing to do]
-mrp          / mrp.workorder            / needed_by_workorder_ids (many2many): NEW relation: mrp.workorder
-mrp          / mrp.workorder            / next_work_order_id (many2one) : DEL relation: mrp.workorder
+# NOTHING TO DO: New feature for defining specific capacities per product
+
 mrp          / mrp.workorder            / qty_reported_from_previous_wo (float): NEW
+# TODO: Previous version was not computing the total remaining quantity correctly on workorders. Leaving this field to 0 will preserve this bad behavior on existing MO backorders. This would be corrected computing partial quantities of all the existing backorders, but not done for now being very specific.
+
 mrp          / product.template         / days_to_prepare_mo (float)    : NEW hasdefault: default
-mrp          / stock.move               / manual_consumption (boolean)  : NEW isfunction: function, stored
-mrp          / stock.move               / order_finished_lot_id (many2one): NEW relation: stock.lot, isrelated: related, stored
-mrp          / stock.picking.type       / use_auto_consume_components_lots (boolean): NEW
-mrp          / stock.warehouse          / pbm_route_id (many2one)       : relation is now 'stock.route' ('stock.location.route') [nothing to do]
 mrp          / stock.warehouse.orderpoint / manufacturing_visibility_days (float): NEW hasdefault: default
+# NOTHING TO DO: New configuration field for indicating days to confirm in advance auto-generated MOs. Default value 0 is OK to preserve v15 behavior.
+
+mrp          / stock.move               / manual_consumption (boolean)  : NEW isfunction: function, stored
+# DONE: pre-migration: Pre-create field and populate values when True
+
+mrp          / stock.move               / order_finished_lot_id (many2one): NEW relation: stock.lot, isrelated: related, stored
+# NOTHING TO DO: Related stored field populated efficiently by the ORM
+
+mrp          / stock.picking.type       / use_auto_consume_components_lots (boolean): NEW
+# NOTHING TO DO: New feature for auto-consuming components lots
+
 ---XML records in module 'mrp'---
 NEW ir.actions.act_window: mrp.action_mrp_production_split
 NEW ir.actions.act_window: mrp.action_mrp_production_split_multi
@@ -67,6 +96,7 @@ DEL ir.ui.view: mrp.report_mrp_bom_pdf
 DEL ir.ui.view: mrp.report_mrp_byproduct_line
 DEL ir.ui.view: mrp.report_mrp_operation_line
 DEL ir.ui.view: mrp.report_reception_report_label_mrp
+# NOTHING TO DO: noupdate=0 internal stuff
+
 NEW res.groups: mrp.group_mrp_reception_report
-NEW res.groups: mrp.group_mrp_workorder_dependencies
-# NOTHING TODO
+# NOTHING TO DO: New feature that can be activated to show "Allocation" report on MOs.

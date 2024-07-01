@@ -20,4 +20,5 @@ _delete_xmlids = [
 
 @openupgrade.migrate()
 def migrate(env, version):
+    openupgrade.load_data(env.cr, "mass_mailing", "16.0.2.5/noupdate_changes.xml")
     openupgrade.delete_records_safely_by_xml_id(env, _delete_xmlids)

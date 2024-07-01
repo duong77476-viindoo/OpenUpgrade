@@ -38,7 +38,10 @@ NEW account.report.expression: l10n_ch.account_tax_report_line_chtax_900_tag
 NEW account.report.expression: l10n_ch.account_tax_report_line_chtax_910_tag
 NEW account.report.expression: l10n_ch.account_tax_report_line_chtax_solde_formula
 NEW ir.actions.act_window: l10n_ch.l10n_ch_qr_invoice_wizard
+NEW ir.actions.report: l10n_ch.l10n_ch_qr_header
 NEW ir.actions.server: l10n_ch.l10n_ch_qr_server_action
 NEW ir.model.access: l10n_ch.access_l10n_ch_qr_invoice_wizard
 DEL ir.ui.menu: l10n_ch.account_reports_ch_statements_menu
+NEW ir.ui.view: l10n_ch.l10n_ch_header_template
 NEW ir.ui.view: l10n_ch.l10n_ch_qr_invoice_wizard_form
+NEW ir.ui.view: l10n_ch.qr_report_header
