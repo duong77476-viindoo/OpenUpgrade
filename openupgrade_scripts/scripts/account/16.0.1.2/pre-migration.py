@@ -7,9 +7,6 @@ _xmlids_renames = [
     ),
 ]
 _column_renames = {
-    "account_move": [
-        ("auto_post", None),
-    ],
     "res_partner": [("credit_limit", None)],
 }
 _fields_renames = [
