@@ -29,9 +29,7 @@ _deleted_xml_records = [
     "account.analytic_default_comp_rule",
 ]
 
-_modules_to_install = [
-    "account_sequence",
-]
+_modules_to_install = ["account_sequence", "account_payment"]
 
 
 def _compute_remaining_account_payment_amount_company_currency_signed(env):
